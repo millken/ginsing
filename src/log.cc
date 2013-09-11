@@ -19,6 +19,7 @@
 #include "zdb.h"
 #include "version.h"
 
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <stdio.h>
