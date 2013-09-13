@@ -311,7 +311,17 @@ MMDB_File::best_rec(const uchar *addr) const {
         const MMDFile_Rec *r = get_rec(m);
         int s = memcmp(addr, r->addr, addr_size);
 
-        if( s > 0 )      f = m + 1;     // move right
+        if( s > 0 ) {
+			int masklen = r->masklen;
+			unsigned long ipnum_start = (r->addr[0] << 24) + (r->addr[1] << 16) + (r->addr[2] << 8) + r->addr[3];
+			unsigned long ipnum_end = ipnum_start + (2 << (32 - masklen -1)) - 1 ;
+			unsigned long source_ip = (addr[0] << 24) + (addr[1] << 16) + (addr[2] << 8) + addr[3];
+
+			DEBUG("s = %d, f=%d, l= %d, ipnum_start= %lu ,ipnum_end = %lu, souce_ip=%lu",s, f, l, ipnum_start, ipnum_end, source_ip );
+			if (ipnum_start <= source_ip && ipnum_end >=source_ip) return r;
+
+            f = m + 1;     // move right
+        }
         else if( s < 0 ) l = m - 1;     // move left
         else return r;		        // found exact
     }
