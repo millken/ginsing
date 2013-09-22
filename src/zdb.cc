@@ -97,8 +97,8 @@ Zone::insert(ZDB *db, RR *rr, string *label){
     }
 
     // glb RR + RRSet must match
-    if( ! rrs->is_compat(rr) )
-        return 0;
+    //if( ! rrs->is_compat(rr) )
+    //    return 0;
 
     rrs->add_rr(rr);
 
