@@ -148,7 +148,7 @@ reload_config(void *file){
     int    lastino = 0;
 
     while(1){
-        sleep(15);
+        sleep(1);
 
 	// watch config file
 	int i = stat((char*)file, &sb);

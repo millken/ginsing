@@ -8,7 +8,7 @@
 #ifndef __acdns_mmd_h_
 #define __acdns_mmd_h_
 
-#define MAXMMELEM	64
+#define MAXMMELEM	128
 
 #define MMDDATAMAGIC    0x41436d46
 #define MMDDATAVERSION	1

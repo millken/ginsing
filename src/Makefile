@@ -13,7 +13,7 @@ LOCALDIR=/usr/local/m64
 FLAGS=-march=opteron -mtune=opteron -m64
 MYNAME=ginsing
 
-CFLAGS = -g $(FLAGS) -O3 -ffast-math -pthreads -I`pwd`/../inc -I$(LOCALDIR)/include -DMYNAME=\"$(MYNAME)\"
+CFLAGS = $(FLAGS) -O3 -ffast-math -pthread -I`pwd`/../inc -I$(LOCALDIR)/include -DMYNAME=\"$(MYNAME)\"
 CCFLAGS=$(CFLAGS)
 CXXFLAGS=$(CFLAGS)
 
@@ -22,7 +22,7 @@ CXXFLAGS=$(CFLAGS)
 LDFLAGS = -L$(LOCALDIR)/lib -lpthread -lrt -lsocket -lnsl -lmtmalloc
 
 # netbsd + linux:
-# LDFLAGS = -L$(LOCALDIR)/lib -lpthread
+LDFLAGS = -L$(LOCALDIR)/lib -lpthread
 
 
 all: $(MYNAME)d
