@@ -313,6 +313,21 @@ network_accept_udp(void *xthno){
     hrtime_t t0=0, t1=0, t2=hr_now();
     Thread_Stats *mystat = thread_stat + thno;
 
+int bytes_received;
+struct sockaddr_in6 from;
+struct iovec iovec[1];
+struct msghdr msg;
+char msg_control[1024];
+char udp_packet[1500];
+
+struct in_pktinfo in_pktinfo;
+struct in6_pktinfo in6_pktinfo;
+int have_in_pktinfo = 0;
+int have_in6_pktinfo = 0;
+struct cmsghdr* cmsg;
+
+int cmsg_space;
+
     // pre allocate things
     ntd = new NTD (UDPBUFSIZ);
     ntd->thno  = thno;
@@ -329,8 +344,35 @@ network_accept_udp(void *xthno){
         mystat->busy    = 0;
         mystat->timeout = 0;
         t0 = t2;
-        i = recvfrom(fd, ntd->querb.buf, UDPBUFSIZ, 0, (sockaddr*)&sa, &l);
+        //i = recvfrom(fd, ntd->querb.buf, UDPBUFSIZ, 0, (sockaddr*)&sa, &l);
         t1 = hr_now();
+
+iovec[0].iov_base = ntd->querb.buf;
+iovec[0].iov_len = UDPBUFSIZ;
+msg.msg_name = &sa;
+msg.msg_namelen = l;
+msg.msg_iov = iovec;
+msg.msg_iovlen = sizeof(iovec) / sizeof(*iovec);
+msg.msg_control = msg_control;
+msg.msg_controllen = sizeof(msg_control);
+msg.msg_flags = 0;
+i = recvmsg(fd, &msg, 0);
+
+for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != 0; cmsg = CMSG_NXTHDR(&msg, cmsg))
+{
+  if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO)
+  {
+    in_pktinfo = *(struct in_pktinfo*)CMSG_DATA(cmsg);
+    have_in_pktinfo = 1;
+   //struct in_addr addr = ((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_addr;
+    //printf("message received on address %s\n", inet_ntoa(addr));
+  }
+  if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO)
+  {
+    in6_pktinfo = *(struct in6_pktinfo*)CMSG_DATA(cmsg);
+    have_in6_pktinfo = 1;
+  }
+}
 
         if( !i ) continue;
         if( i < 0 ){
@@ -354,7 +396,38 @@ network_accept_udp(void *xthno){
             mystat->timeout = lr_now() + TIMEOUT;
 
             int rl = dns_process(ntd);
-            if( rl ) sendto(fd, ntd->respb.buf, rl, 0, (sockaddr*)&sa, sizeof(sa));
+            //if( rl ) sendto(fd, ntd->respb.buf, rl, 0, (sockaddr*)&sa, sizeof(sa));
+
+
+iovec[0].iov_base = ntd->respb.buf;
+iovec[0].iov_len = rl;
+msg.msg_name = &sa;
+msg.msg_namelen = sizeof(sa);
+msg.msg_iov = iovec;
+msg.msg_iovlen = sizeof(iovec) / sizeof(*iovec);
+msg.msg_control = msg_control;
+msg.msg_controllen = sizeof(msg_control);
+msg.msg_flags = 0;
+cmsg_space = 0;
+cmsg = CMSG_FIRSTHDR(&msg);
+if (have_in6_pktinfo)
+{
+  cmsg->cmsg_level = IPPROTO_IPV6;
+  cmsg->cmsg_type = IPV6_PKTINFO;
+  cmsg->cmsg_len = CMSG_LEN(sizeof(in6_pktinfo));
+  *(struct in6_pktinfo*)CMSG_DATA(cmsg) = in6_pktinfo;
+  cmsg_space += CMSG_SPACE(sizeof(in6_pktinfo));
+}
+if (have_in_pktinfo)
+{
+  cmsg->cmsg_level = IPPROTO_IP;
+  cmsg->cmsg_type = IP_PKTINFO;
+  cmsg->cmsg_len = CMSG_LEN(sizeof(in_pktinfo));
+  *(struct in_pktinfo*)CMSG_DATA(cmsg) = in_pktinfo;
+  cmsg_space += CMSG_SPACE(sizeof(in_pktinfo));
+}
+msg.msg_controllen = cmsg_space;
+int ret = sendmsg(fd, &msg, 0);
 
             if( config->trace_is_set('N') )
                 hexdump(ntd->respb.buf, rl);
@@ -399,28 +472,30 @@ network_init(void){
 
 
     // open sockets
-    tcp = socket(PF_INET, SOCK_STREAM, 6);
+    tcp = socket(PF_INET, SOCK_STREAM, 0);
     if( tcp == -1 ){
 	FATAL("cannot create socket");
     }
 
     sa.sin_family = AF_INET;
     sa.sin_port   = htons(myport);
-    sa.sin_addr.s_addr = INADDR_ANY;
+    sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
     i = 1;
     setsockopt(tcp, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-
+    
     i = bind(tcp, (sockaddr*)&sa, sizeof(sa));
     if( i == -1 ){
 	FATAL("cannot bind to port");
     }
     listen(tcp, 10);
 
-    udp = socket(PF_INET, SOCK_DGRAM, 17);
+    udp = socket(PF_INET, SOCK_DGRAM, 0);
     if( udp == -1 ){
 	FATAL("cannot create socket");
     }
+    i = 1;
+    setsockopt(udp, IPPROTO_IP, IP_PKTINFO , &i, sizeof(i));
     i = bind(udp, (sockaddr*)&sa, sizeof(sa));
     if( i == -1 ){
 	FATAL("cannot bind to port");
