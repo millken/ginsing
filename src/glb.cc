@@ -179,6 +179,12 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
             mme[i].datacenter = 0;
             continue;
         }
+        if(!mme[i].metric) {
+            DEBUG("best dc is %s", dcn);
+            respond(ntd, rs, qty );
+            return 1;        
+        }
+        /*
         bool dcok = r->datacenter_looks_good();
 
         // track whether the datacenter is usable, in order to save time in failover
@@ -211,8 +217,12 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
             mme[i].datacenter = 0;
             navail --;
         }
+        */
     }
-
+    int res = a_a_failover_specify(":unknown", ntd, qty);
+    if( res ) return res;
+    return 0;
+    /*
     // grumble. best is not available
     if( typeok ) INCSTAT(ntd, n_glb_failover);
     ntd->mmd.logflags |= GLBMM_F_FAIL;
@@ -230,6 +240,7 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
     if( typeok ) INCSTAT(ntd, n_glb_failover_fail);
     ntd->mmd.logflags |= GLBMM_F_FAILFAIL;
     return 0;
+    */
 }
 
 // if we cannot figure out where the user is
@@ -421,4 +432,3 @@ RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty) const {
 
     return 0;
 }
-
