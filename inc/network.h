@@ -142,6 +142,7 @@ public:
     NTD_DNS_Z		ztab;
     MMD			mmd;
     sockaddr		*sa;
+    char		dstaddr[16];
     int			salen;
 
     NTD(int len) : querb(len), respb(len)  {

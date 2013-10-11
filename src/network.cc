@@ -223,6 +223,9 @@ network_accept_tcp(void *xthno){
     hrtime_t t0=0, t1=0, t2=hr_now();
     Thread_Stats *mystat = thread_stat + thno;
     iovec iov[2];
+struct sockaddr_in sin;
+int sin_len = 0;
+socklen_t len = sizeof(sin);
 
     // pre allocate things
     ntd = new NTD (TCPBUFSIZ);
@@ -239,6 +242,7 @@ network_accept_tcp(void *xthno){
         mystat->busy    = 0;
         mystat->timeout = 0;
         t0 = t2;
+            
 	nfd = accept(fd, (sockaddr *)&sa, &l);
         t1 = hr_now();
         ntd->fd = nfd;
@@ -248,6 +252,14 @@ network_accept_tcp(void *xthno){
 	    continue;
 	}
 
+if (getsockname(nfd, (struct sockaddr *)&sin, &len) == -1) {
+    DEBUG("getsockname fail\n");
+}else {
+	sin_len = strlen(inet_ntoa(sin.sin_addr));
+	memcpy(ntd->dstaddr, inet_ntoa(sin.sin_addr), sin_len);
+	ntd->dstaddr[sin_len] = '\0';
+    DEBUG("tcp server ip: %s\n", ntd->dstaddr);
+}
         mystat->busy = 1;
         mystat->stats.n_tcp ++;
         ntd->reset(MAXTCP);
@@ -364,8 +376,11 @@ for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != 0; cmsg = CMSG_NXTHDR(&msg, cmsg))
   {
     in_pktinfo = *(struct in_pktinfo*)CMSG_DATA(cmsg);
     have_in_pktinfo = 1;
-   //struct in_addr addr = ((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_addr;
-    //printf("message received on address %s\n", inet_ntoa(addr));
+   struct in_addr addr = ((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_addr;
+   int sin_len = strlen(inet_ntoa(addr));
+	memcpy(ntd->dstaddr, inet_ntoa(addr), sin_len);
+	ntd->dstaddr[sin_len] = '\0';   
+   DEBUG("udp server ip: %s\n", ntd->dstaddr);
   }
   if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO)
   {

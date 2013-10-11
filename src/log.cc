@@ -78,6 +78,7 @@ log_request(NTD *ntd){
     case AF_INET:
         si = (sockaddr_in*)ntd->sa;
         out_ipv4(f, (uchar*)& si->sin_addr);
+        fprintf(f, "|%s", ntd->dstaddr);
         break;
     case AF_INET6:
         ss = (sockaddr_in6*)ntd->sa;
