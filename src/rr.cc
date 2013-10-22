@@ -17,6 +17,7 @@
 #include "dns.h"
 #include "zdb.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -239,7 +240,7 @@ RR_A::configure(InputF *f, Zone *z, string *rspec){
 
     DNS_RR_Hdr *hdr = (DNS_RR_Hdr*) rrdata.data();
     hdr->rdlength   = htons( 4 );
-
+ 
     int i = inet_pton(AF_INET, rspec->c_str(), hdr->rdata);
     if( i != 1 ){
         DEBUG("pton %s - %d", rspec->c_str(), i);
@@ -287,10 +288,16 @@ RR_Alias::configure(InputF *f, Zone *z, string *rspec){
 
 int
 RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
+    vector<int> vrdm;
+    int i,j;
 
-    for(int i=0; i<rr.size(); i++){
-        RR *r = rr[i];
-
+    for(i=0; i<rr.size(); i++){
+	vrdm.push_back(i);
+    }
+    while(!vrdm.empty()) { 	 
+	i = rand()%(vrdm.size());
+	j = vrdm[i];
+        RR *r = rr[j];
         if( r->klass == qkl && r->type == TYPE_NS && r->delegation ){
             // delegated subdomain
             DEBUG("found delegation %s %d", r->name.c_str(), r->type);
@@ -303,12 +310,13 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
             if( r->type == TYPE_NS ) ntd->respd.has_ns_ans = 1;
             DEBUG("found answer %s %d", r->name.c_str(), r->type);
             if( ! r->add_answer(ntd, 1, qkl, qty) ) return 1;
-
+	   
             if( r->type == TYPE_CNAME && qty != TYPE_CNAME && qty != TYPE_ANY ){
                 // rfc 1034 3.6.2
                 if( ! r->add_add_ans(ntd, qkl, qty) ) return 1;
             }
         }
+	vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
     return 1;
@@ -343,7 +351,7 @@ RR_Alias::add_answer(NTD *ntd, bool isq, int qkl, int qty) const{
 int
 RR::add_add_ans(NTD *ntd, int qkl, int qty) const {
 
-    for(int j=0; j<additional.size(); j++){
+    for(int j=additional.size()-1; j >= 0; j--){
         RR *ra = additional[j];
         if( ! ra->add_answer(ntd, 0, qkl, qty) ) return 1;
     }
@@ -354,7 +362,7 @@ RR::add_add_ans(NTD *ntd, int qkl, int qty) const {
 int
 RR::add_additnl(NTD *ntd) const {
 
-    for(int j=0; j<additional.size(); j++){
+    for(int j=additional.size()-1; j >= 0; j--){
         RR *ra = additional[j];
         if( ra->put_rr(ntd, 0) ) ntd->respd.arcount ++;
     }
@@ -365,7 +373,7 @@ RR::add_additnl(NTD *ntd) const {
 int
 RRSet::add_additnl(NTD *ntd, int qkl, int qty) const {
 
-    for(int i=0; i<rr.size(); i++){
+    for(int i=rr.size()-1; i >= 0; i--){
         RR *r = rr[i];
         // NB: cname additional is included in the answer, not the additional
         if( r->klass == qkl && (qty == TYPE_ANY || qty == r->type ||
@@ -381,7 +389,7 @@ RRSet::add_additnl(NTD *ntd, int qkl, int qty) const {
 int
 Zone::add_ns_auth(NTD *ntd) const {
 
-    for(int i=0; i<ns.size(); i++){
+    for(int i= ns.size() -1; i >= 0; i--){
         RR *r = ns[i];
         if( r->put_rr(ntd, 0) ) ntd->respd.nscount ++;
     }
@@ -390,7 +398,7 @@ Zone::add_ns_auth(NTD *ntd) const {
 int
 Zone::add_ns_addl(NTD *ntd) const {
 
-    for(int i=0; i<ns.size(); i++){
+    for(int i= ns.size() -1; i >= 0; i--){
         RR *r = ns[i];
         for(int j=0; j<r->additional.size(); j++){
             RR *ra = r->additional[j];
