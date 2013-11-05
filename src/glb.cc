@@ -134,6 +134,33 @@ RRSet_GLB_MM::weight_and_sort(NTD *ntd) const {
     std::sort( mme, mme + nelem );
 }
 
+const RR_GLB_MM*
+RRSet_GLB_MM::find_element(const char *dc)const  {
+#define SIZELEN 128
+    char szbuf[SIZELEN],*buf;
+    char *ch;
+
+    memset(szbuf,0,SIZELEN);
+
+    strcpy(szbuf,dc);
+    buf = szbuf;
+
+    ch = strchr(buf,'C');
+    while (ch != NULL) {
+        (*ch) = '\0';
+        const RR_GLB_MM *r =  find(buf);
+        if (r) {
+            DEBUG("best is %s",buf);
+            return r;
+        }
+        buf = ch +1;
+        ch = strchr(buf,'C');
+    }
+    const RR_GLB_MM *r = find(buf);
+    if (r) DEBUG("best is %s",buf);
+    return r;
+}
+
 int
 RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
 
@@ -160,7 +187,8 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         int res = a_a_failover_specify(":unknown", ntd, qty);
         if( res ) return res;
         // otherwise use the first available
-        return add_answers_first_match(ntd, qty);
+        //return add_answers_first_match(ntd, qty);
+		return 0;
     }
 
     const RR_GLB_MM *best  = 0;
@@ -173,17 +201,20 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
     for(int i=0; i<nelem; i++){
         const char *dcn = mme[i].datacenter;
         if( !dcn ) continue;
-        const RR_GLB_MM *r = find(dcn);
+        const RR_GLB_MM *r = find_element(dcn);
         const RRSet *rs = r ? r->comp_rrset : 0;
         if( ! rs ){
             mme[i].datacenter = 0;
             continue;
         }
-        if(!mme[i].metric) {
+        
+		if(!mme[i].metric) {
             DEBUG("best dc is %s", dcn);
             respond(ntd, rs, qty );
             return 1;        
-        }
+        } 
+
+    
         /*
         bool dcok = r->datacenter_looks_good();
 
@@ -220,6 +251,7 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         */
     }
     int res = a_a_failover_specify(":unknown", ntd, qty);
+	DEBUG("UUUUUUUUUUUUUUUnknow");
     if( res ) return res;
     return 0;
     /*

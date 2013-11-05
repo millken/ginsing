@@ -292,12 +292,19 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
     int i,j;
 
     for(i=0; i<rr.size(); i++){
-	vrdm.push_back(i);
+		vrdm.push_back(i);
     }
     while(!vrdm.empty()) { 	 
-	i = rand()%(vrdm.size());
-	j = vrdm[i];
+		i = rand()%(vrdm.size());
+		j = vrdm[i];
         RR *r = rr[j];
+		if (qty != TYPE_A) {
+            if (r->type != qty){
+                vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
+                continue;
+            }
+        }
+
         if( r->klass == qkl && r->type == TYPE_NS && r->delegation ){
             // delegated subdomain
             DEBUG("found delegation %s %d", r->name.c_str(), r->type);
@@ -316,7 +323,7 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
                 if( ! r->add_add_ans(ntd, qkl, qty) ) return 1;
             }
         }
-	vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
+		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
     return 1;

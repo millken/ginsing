@@ -76,12 +76,12 @@ Zone::zonematch(const char *s, int l) const {
 
 // add record to the zone
 int
-Zone::insert(ZDB *db, RR *rr, string *label){
+Zone::insert(ZDB *db, RR *rr, string *label,int flag){
     bool wildp = rr->wildcard;
 
     // existing RRSet? add. else create new RRSet
     RRSet *rrs = find_rrset( label, wildp );
-    if( ! rrs ){
+	if( (! rrs)||(flag == 1)) {
         rrs = RRSet::make(this, label, wildp, rr->type);
         if( ! rrs ){
             BUG("create rrs failed! type %d", rr->type);
@@ -91,7 +91,7 @@ Zone::insert(ZDB *db, RR *rr, string *label){
 
         // delegated subdomains will be wired later (zdb::analyze)
         if( ! rrs->delegation )
-            db->insert(rrs);
+            db->insert(rrs,rr->type);
 
         DEBUG("new RRSet wild %d, name %s, zone %s; fqdn %s", wildp, label->c_str(), zonename.c_str(), rrs->fqdn.c_str());
     }
@@ -112,12 +112,13 @@ Zone::insert(ZDB *db, RR *rr, string *label){
 
 // add a new rrset to the db
 int
-ZDB::insert(RRSet *rrs){
+ZDB::insert(RRSet *rrs,int type){
 
-    if( rrs->wildcard )
-        wildcard.push_back(rrs);
-    else
-        rrset[ rrs->fqdn.c_str() ] = rrs;
+    if( rrs->wildcard ) {
+		wildcard.push_back(rrs);
+    } else {
+		rrset[ rrs->fqdn.c_str() ] = rrs;
+	}
 
     return 1;
 }
@@ -240,7 +241,7 @@ RR_Alias::wire_up(ZDB *db, Zone *z, RRSet *s){
 
     // same zone?
     RRSet *rrs = z->find_rrset( & target, 0 );
-    if( ! rrs ) rrs = db->find_rrset( target.c_str() );
+    if( ! rrs ) rrs = db->find_rrset( target.c_str(),TYPE_ALIAS );
     if( !rrs ){
         PROBLEM("cannot locate ALIAS target %s => %s", s->fqdn.c_str(), target.c_str());
         return;
@@ -290,7 +291,7 @@ Zone::wire_up(ZDB *db){
         }else{
             DEBUG("wiring delegated subdomain %s", rs->fqdn.c_str());
             rs->wildcard = 1;
-            db->insert(rs);
+            db->insert(rs,1);
         }
     }
 }
@@ -337,10 +338,21 @@ Zone::find_rrset(string *s, bool wp) const {
 }
 
 RRSet *
-ZDB::find_rrset(const char *s) const {
+ZDB::find_rrset(const char *s,int type) const {
 
     // rrset[ s ]
-    MapRRSet::const_iterator it = rrset.find( s );
+    MapRRSet::const_iterator it ;
+	
+	if (type == TYPE_A) {
+        char buf[MAXNAME+2];
+        memset(buf,0,sizeof(buf));
+        sprintf(buf,"%s.%s",S_FLAG,s);
+        it = rrset.find(buf);
+        if (it != rrset.end()) return it->second;
+    }
+
+
+	it  = rrset.find( s );
     if( it != rrset.end() ){
         return it->second;
     }

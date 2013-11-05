@@ -134,7 +134,7 @@ bool
 MMDB_File::datacenter_valid(const char *dcn) const{
 
     for(int i=0; i<hdr->n_datacenter; i++){
-        if( !strcmp(dc[i], dcn) ) return 1;
+        if( !strstr(dc[i], dcn) ) return 1;
     }
     return 0;
 }
@@ -290,7 +290,6 @@ MMDB_File::locate(NTD *ntd, const uchar *addr) const {
     for(int i=0; i<hdr->n_datacenter; i++){
         ntd->mmd.mm[i].datacenter = dc[i];
         ntd->mmd.mm[i].metric     = fb->metric[i];
-        DEBUG("  %s => %d", dc[i], fb->metric[i]);
     }
 
     ntd->mmd.nelem = hdr->n_datacenter;
