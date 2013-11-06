@@ -38,10 +38,16 @@ RRSet_GLB_MM::add_rr(RR *r){
 // respond with all available matching RRs
 static inline int
 respond(NTD *ntd, const RRSet *rs, int qty){
-    int ok = 0;
-
+    int ok = 0,i,j;
+	vector<int> vrdm;
     for(int i=0; i<rs->rr.size(); i++){
-        RR *rr = rs->rr[i];
+		vrdm.push_back(i);
+	}
+	while( !vrdm.empty()) {
+		srand((int)time(0));
+		i = rand()%(vrdm.size());
+		j = vrdm[i];
+        RR *rr = rs->rr[j];
         if( ! rr->can_satisfy(qty) )   continue;
         if( ! rr->probe_looks_good() ) continue;
 
@@ -49,6 +55,7 @@ respond(NTD *ntd, const RRSet *rs, int qty){
         if( rr->type == TYPE_CNAME && qty != TYPE_CNAME && qty != TYPE_ANY )
             rr->add_add_ans(ntd, CLASS_IN, qty);
         ok = 1;
+		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
     return ok;
@@ -136,11 +143,10 @@ RRSet_GLB_MM::weight_and_sort(NTD *ntd) const {
 
 const RR_GLB_MM*
 RRSet_GLB_MM::find_element(const char *dc)const  {
-#define SIZELEN 128
-    char szbuf[SIZELEN],*buf;
+    char szbuf[MAXNAME+2],*buf;
     char *ch;
 
-    memset(szbuf,0,SIZELEN);
+    memset(szbuf,0,sizeof(szbuf));
 
     strcpy(szbuf,dc);
     buf = szbuf;
@@ -209,7 +215,6 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         }
         
 		if(!mme[i].metric) {
-            DEBUG("best dc is %s", dcn);
             respond(ntd, rs, qty );
             return 1;        
         } 
@@ -251,7 +256,6 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         */
     }
     int res = a_a_failover_specify(":unknown", ntd, qty);
-	DEBUG("UUUUUUUUUUUUUUUnknow");
     if( res ) return res;
     return 0;
     /*

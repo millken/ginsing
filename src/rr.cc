@@ -294,7 +294,8 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
     for(i=0; i<rr.size(); i++){
 		vrdm.push_back(i);
     }
-    while(!vrdm.empty()) { 	 
+    while(!vrdm.empty()) { 	
+    	srand((int)time(0)); 
 		i = rand()%(vrdm.size());
 		j = vrdm[i];
         RR *r = rr[j];
