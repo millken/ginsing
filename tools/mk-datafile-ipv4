@@ -13,32 +13,295 @@ use Math::Trig qw(deg2rad pi great_circle_distance asin acos);
 
 use strict;
 
-my $OUTFILE = '/tmp/dns_mm_ipv4.mdb';
+my $OUTFILE = '/home/lq/Desktop/yd/dns/ginsing-master/tools/dns_mm_ipv4.mdb';
 
-my $BLKFILE = '/tmp/GeoLiteCity_20130101/GeoLiteCity-Blocks.csv';
-my $LOCFILE = '/tmp/GeoLiteCity_20130101/GeoLiteCity-Location.csv';
+my $BLKFILE = '/home/lq/Desktop/yd/dns/ginsing-master/tools/blc.csv';
+my $LOCFILE = '/home/lq/Desktop/yd/dns/ginsing-master/tools/loc.csv';
 
 
 my %DC = (
-    ccsphl	=> {
-        lat => 39.964622,
-        lon => -75.161762,
-    },
+	yd => {
+		lat => 5.0000,
+		lon => 31.0000,
+	},
+	tt => {
+		lat => 6.0000,
+		lon => 31.0000,
+	},
+	edu => {
+		lat => 7.0000,
+		lon => 31.0000,
+	},
+	'fujiandx$hddx$hd$dx' => {
+		lat => 8.0000,
+		lon => 31.0000,
+	},
+	'guangdongdx$hndx$hn$dx' => {
+		lat => 9.0000,
+		lon => 31.0000,
+	},
+	'neimenggult$hblt$hb$lt' => {
+		lat => 10.0000,
+		lon => 31.0000,
+	},
+	'guizhoudx$xndx$xn$dx' => {
+		lat => 11.0000,
+		lon => 31.0000,
+	},
+	'ningxiadx$xbdx$xb$dx' => {
+		lat => 12.0000,
+		lon => 31.0000,
+	},
+	'heilongjianglt$dblt$db$lt' => {
+		lat => 13.0000,
+		lon => 31.0000,
+	},
+	'sanxidx$hbdx$hb$dx' => {
+		lat => 14.0000,
+		lon => 31.0000,
+	},
+	'shanxidx$xbdx$xb$dx' => {
+		lat => 15.0000,
+		lon => 31.0000,
+	},
+	'neimenggudx$hbdx$hb$dx' => {
+		lat => 16.0000,
+		lon => 31.0000,
+	},
+	'henandx$hzdx$hz$dx' => {
+		lat => 17.0000,
+		lon => 31.0000,
+	},
+	'beijingdx$hbdx$hb$dx' => {
+		lat => 18.0000,
+		lon => 31.0000,
+	},
+	'chongqingdx$xndx$xn$dx' => {
+		lat => 19.0000,
+		lon => 31.0000,
+	},
+	'yunnanlt$xnlt$xn$lt' => {
+		lat => 20.0000,
+		lon => 31.0000,
+	},
+	'chongqinglt$xnlt$xn$lt' => {
+		lat => 21.0000,
+		lon => 31.0000,
+	},
+	'hubeidx$hzdx$hz$dx' => {
+		lat => 22.0000,
+		lon => 31.0000,
+	},
+	'guangdonglt$hnlt$hn$lt' => {
+		lat => 23.0000,
+		lon => 31.0000,
+	},
+	'xizanglt$xnlt$xn$lt' => {
+		lat => 24.0000,
+		lon => 31.0000,
+	},
+	'shanghailt$hdlt$hd$lt' => {
+		lat => 25.0000,
+		lon => 31.0000,
+	},
+	'hebeidx$hbdx$hb$dx' => {
+		lat => 26.0000,
+		lon => 31.0000,
+	},
+	'shandonglt$hdlt$hd$lt' => {
+		lat => 27.0000,
+		lon => 31.0000,
+	},
+	'gansudx$xbdx$xb$dx' => {
+		lat => 28.0000,
+		lon => 31.0000,
+	},
+	'anhuidx$hddx$hd$dx' => {
+		lat => 29.0000,
+		lon => 31.0000,
+	},
+	'zhejiangdx$hddx$hd$dx' => {
+		lat => 30.0000,
+		lon => 31.0000,
+	},
+	'anhuilt$hdlt$hd$lt' => {
+		lat => 31.0000,
+		lon => 31.0000,
+	},
+	'jilindx$dbdx$db$dx' => {
+		lat => 32.0000,
+		lon => 31.0000,
+	},
+	'fujianlt$hdlt$hd$lt' => {
+		lat => 33.0000,
+		lon => 31.0000,
+	},
+	'liaoninglt$dblt$db$lt' => {
+		lat => 34.0000,
+		lon => 31.0000,
+	},
+	'hunanlt$hzlt$hz$lt' => {
+		lat => 35.0000,
+		lon => 31.0000,
+	},
+	'ningxialt$xblt$xb$lt' => {
+		lat => 36.0000,
+		lon => 31.0000,
+	},
+	'tianjindx$hbdx$hb$dx' => {
+		lat => 37.0000,
+		lon => 31.0000,
+	},
+	'heilongjiangdx$dbdx$db$dx' => {
+		lat => 38.0000,
+		lon => 31.0000,
+	},
+	'liaoningdx$dbdx$db$dx' => {
+		lat => 39.0000,
+		lon => 31.0000,
+	},
+	'henanlt$hzlt$hz$lt' => {
+		lat => 40.0000,
+		lon => 31.0000,
+	},
+	'yunnandx$xndx$xn$dx' => {
+		lat => 41.0000,
+		lon => 31.0000,
+	},
+	'jiangsudx$hddx$hd$dx' => {
+		lat => 42.0000,
+		lon => 31.0000,
+	},
+	'xinjiangdx$xbdx$xb$dx' => {
+		lat => 43.0000,
+		lon => 31.0000,
+	},
+	'jiangsult$hdlt$hd$lt' => {
+		lat => 44.0000,
+		lon => 31.0000,
+	},
+	'guizhoult$xnlt$xn$lt' => {
+		lat => 45.0000,
+		lon => 31.0000,
+	},
+	'jiangxilt$hdlt$hd$lt' => {
+		lat => 46.0000,
+		lon => 31.0000,
+	},
+	'hubeilt$hzlt$hz$lt' => {
+		lat => 47.0000,
+		lon => 31.0000,
+	},
+	'jilinlt$dblt$db$lt' => {
+		lat => 48.0000,
+		lon => 31.0000,
+	},
+	'shanghaidx$hddx$hd$dx' => {
+		lat => 49.0000,
+		lon => 31.0000,
+	},
+	'hunandx$hzdx$hz$dx' => {
+		lat => 50.0000,
+		lon => 31.0000,
+	},
+	'shandongdx$hddx$hd$dx' => {
+		lat => 51.0000,
+		lon => 31.0000,
+	},
+	'guangxidx$hndx$hn$dx' => {
+		lat => 52.0000,
+		lon => 31.0000,
+	},
+	'hainandx$hndx$hn$dx' => {
+		lat => 53.0000,
+		lon => 31.0000,
+	},
+	'jiangxidx$hddx$hd$dx' => {
+		lat => 54.0000,
+		lon => 31.0000,
+	},
+	'hebeilt$hblt$hb$lt' => {
+		lat => 55.0000,
+		lon => 31.0000,
+	},
+	'zhejianglt$hdlt$hd$lt' => {
+		lat => 56.0000,
+		lon => 31.0000,
+	},
+	'gansult$xblt$xb$lt' => {
+		lat => 57.0000,
+		lon => 31.0000,
+	},
+	'hainanlt$hnlt$hn$lt' => {
+		lat => 58.0000,
+		lon => 31.0000,
+	},
+	'xinjianglt$xblt$xb$lt' => {
+		lat => 59.0000,
+		lon => 31.0000,
+	},
+	'tianjinlt$hblt$hb$lt' => {
+		lat => 60.0000,
+		lon => 31.0000,
+	},
+	'sanxilt$hblt$hb$lt' => {
+		lat => 61.0000,
+		lon => 31.0000,
+	},
+	'beijinglt$hblt$hb$lt' => {
+		lat => 62.0000,
+		lon => 31.0000,
+	},
+	'sichuandx$xndx$xn$dx' => {
+		lat => 63.0000,
+		lon => 31.0000,
+	},
+	'sichuanlt$xnlt$xn$lt' => {
+		lat => 64.0000,
+		lon => 31.0000,
+	},
+	'xizangdx$xndx$xn$dx' => {
+		lat => 65.0000,
+		lon => 31.0000,
+	},
+	'shanxilt$xblt$xb$lt' => {
+		lat => 66.0000,
+		lon => 31.0000,
+	},
+	'qinghaidx$xbdx$xb$dx' => {
+		lat => 67.0000,
+		lon => 31.0000,
+	},
+	'guangxilt$hnlt$hn$lt' => {
+		lat => 68.0000,
+		lon => 31.0000,
+	},
+	'qinghailt$xblt$xb$lt' => {
+		lat => 69.0000,
+		lon => 31.0000,
+	},
+	searchengine => {
+		lat => 70.0000,
+		lon => 31.0000,
+	},
+	xianggang => {
+		lat => 71.0000,
+		lon => 31.0000,
+	},
+	taiwan => {
+		lat => 72.0000,
+		lon => 31.0000,
+	},
+	overseas => {
+		lat => 73.0000,
+		lon => 31.0000,
+	},
+	aomen => {
+		lat => 74.0000,
+		lon => 31.0000,
+	},
 
-    qtssjc => {
-        lat => 37.392664,
-        lon => -121.978455,
-    },
 
-    savchi => {
-        lat => 41.854323,
-        lon => -87.618531,
-    },
-
-    swiams => {
-        lat => 52.304136,
-        lon => 4.939256,
-    },
    );
 
 my $HEADSIZE = 8192;
@@ -46,7 +309,6 @@ my %LOC;
 my $nrec = 0;
 
 my @DC = (keys %DC);
-
 ################################################################
 
 open(TMP, "> $OUTFILE.tmp.$$") || fatal("cannot open tmp file: $!");
@@ -133,13 +395,14 @@ sub haversine {
 
   my $c = 2 * (asin(sqrt($a)));
 
-  # print STDERR ">> $lat1, $long1, $lat2, $long2 => $a,$c\n";
+   #print STDERR ">> $lat1, $long1, $lat2, $long2 => $a,$c\n";
   return $r * $c;
 }
 
 sub do_header {
 
     my $hsize = 128;
+	
     my $dcs = join('', map { "$_\0" } @DC);
 
     my $rec = pack('LL ll qq qq',
@@ -148,7 +411,6 @@ sub do_header {
                    $hsize, (scalar @DC),	# dc pos, #dc
                    $HEADSIZE, $nrec,		# rec pos, #rec
                   );
-
     $rec .= "\0" x ($hsize - length($rec)) . $dcs;
     $rec .= "\0" x ($HEADSIZE - length($rec));
 

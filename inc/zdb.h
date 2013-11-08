@@ -16,6 +16,7 @@
 #include "dns.h"
 #include "mon.h"
 
+#define S_FLAG	"myself"
 using std::string;
 using std::vector;
 using std::map;
@@ -333,6 +334,7 @@ protected:
     MapRR		dcrr;
 
     const RR_GLB_MM *find(const char *)                        const;
+	const RR_GLB_MM *find_element(const char *)				   const;
     void weight_and_sort(NTD *)                                const;
     int add_answers_first_match(NTD *, int)                    const;
     int add_answers_failover(const RR_GLB_MM *, NTD *, int)    const;
@@ -367,7 +369,7 @@ private:
     Zone(string *z, string *f){ soa = 0; zonename = *z + "."; zonefile = *f; }
     ~Zone();
     int load(ZDB*, InputF*);
-    int insert(ZDB *, RR*, string *);
+    int insert(ZDB *, RR*, string *,int);
     int analyze(ZDB*);
     bool zonematch(const char *, int)      const;
     void wire_up(ZDB*);
@@ -391,9 +393,9 @@ public:
 public:
     ~ZDB();
     int load(string*, string *);
-    RRSet *find_rrset(const char *)       const;
+    RRSet *find_rrset(const char *,int)       const;
     Zone  *find_zone(const char *)        const;
-    int insert(RRSet *);
+    int insert(RRSet *,int );
     int analyze();
     void add_monitored(RR*);
 };
