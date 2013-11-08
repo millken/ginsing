@@ -151,7 +151,7 @@ RRSet_GLB_MM::find_element(const char *dc)const  {
     strcpy(szbuf,dc);
     buf = szbuf;
 
-    ch = strchr(buf,'C');
+    ch = strchr(buf,'$');
     while (ch != NULL) {
         (*ch) = '\0';
         const RR_GLB_MM *r =  find(buf);
@@ -160,7 +160,7 @@ RRSet_GLB_MM::find_element(const char *dc)const  {
             return r;
         }
         buf = ch +1;
-        ch = strchr(buf,'C');
+        ch = strchr(buf,'$');
     }
     const RR_GLB_MM *r = find(buf);
     if (r) DEBUG("best is %s",buf);
