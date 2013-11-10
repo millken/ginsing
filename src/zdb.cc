@@ -357,15 +357,16 @@ ZDB::find_rrset(const char *s,int type) const {
         return it->second;
     } else { 
 		char array[MAXNAME+1];
-		char *buf,*ch;
+		char *buf,*ch,*p;
 		
 		buf = strdup(s);
+		p = buf;
 		ch = strchr(buf,'.');
 		while (ch != NULL) {
 			sprintf(array,"%s.%s",E_FLAG,ch+1);
 			it = rrset.find(array);
 			if (it != rrset.end()) {
-				free(buf);
+				free(p);
 				return it->second;
 			}
 			buf = ch + 1; 
