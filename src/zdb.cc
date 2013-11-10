@@ -355,8 +355,23 @@ ZDB::find_rrset(const char *s,int type) const {
 	it  = rrset.find( s );
     if( it != rrset.end() ){
         return it->second;
-    }
-
+    } else { 
+		char array[MAXNAME+1];
+		char *buf,*ch;
+		
+		buf = strdup(s);
+		ch = strchr(buf,'.');
+		while (ch != NULL) {
+			sprintf(array,"%s.%s",E_FLAG,ch+1);
+			it = rrset.find(array);
+			if (it != rrset.end()) {
+				free(buf);
+				return it->second;
+			}
+			buf = ch + 1; 
+			ch = strchr(buf,'.');
+		}
+	}
     // check wildcards
     int l = strlen(s);
     for(int i=0; i<wildcard.size(); i++){
