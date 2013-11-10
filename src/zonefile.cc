@@ -438,6 +438,7 @@ Zone::load(ZDB *db, InputF *f){
         bool wildp = 0;
 
         if( label == "@" ) label = "";
+		if (label == "*" ) label = E_FLAG;
 
         if( label[0] == '*' ){
             // convert wildcard

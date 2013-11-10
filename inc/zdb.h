@@ -17,6 +17,7 @@
 #include "mon.h"
 
 #define S_FLAG	"myself"
+#define E_FLAG  "everyalldomain"
 using std::string;
 using std::vector;
 using std::map;
