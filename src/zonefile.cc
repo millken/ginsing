@@ -413,6 +413,7 @@ Zone::load(ZDB *db, InputF *f){
     string rdata;
     string extra;
     int ttl=-1, klass = CLASS_IN, type=-1;
+	unsigned long myflag = 0,everyflag=0;
 	int flag = 0;
 
 
@@ -471,13 +472,19 @@ Zone::load(ZDB *db, InputF *f){
         }
 
 		if ((!strcmp(label.c_str(),""))&&(type == TYPE_GLB_MM)){
-			flag++;
+			myflag++;
 			label = S_FLAG;
+			if (myflag == 1)flag = 1;
+		}
+		if ((!strcmp(label.c_str(),E_FLAG))&&(type == TYPE_GLB_MM)){
+			everyflag++;
+			if (everyflag == 1)flag = 1;
 		}
         if( !insert(db, rr, &label,flag) ){
             f->problem("unable to insert RR, not compitble with RRSet");
             return 0;
         }
+		flag = 0;
     }
 
     if( ! soa ){
