@@ -312,9 +312,9 @@ MMDB_File::best_rec(const uchar *addr) const {
 
         if( s > 0 ) {
 			int masklen = r->masklen;
-			unsigned long ipnum_start = (r->addr[0] << 24) + (r->addr[1] << 16) + (r->addr[2] << 8) + r->addr[3];
-			unsigned long ipnum_end = ipnum_start + (2 << (32 - masklen -1)) - 1 ;
-			unsigned long source_ip = (addr[0] << 24) + (addr[1] << 16) + (addr[2] << 8) + addr[3];
+			long long ipnum_start =(unsigned int) (r->addr[0] << 24) + (unsigned int)(r->addr[1] << 16) + (unsigned int)(r->addr[2] << 8) + (unsigned int)r->addr[3];
+			long long ipnum_end = ipnum_start + (2 << (32 - masklen -1)) - 1 ;
+			long long source_ip =(unsigned int)(addr[0] << 24) + (unsigned int)(addr[1] << 16) + (unsigned int)(addr[2] << 8) + (unsigned int)addr[3];
 
 			DEBUG("s = %d, f=%d, l= %d, ipnum_start= %lu ,ipnum_end = %lu, souce_ip=%lu",s, f, l, ipnum_start, ipnum_end, source_ip );
 			if (ipnum_start <= source_ip && ipnum_end >=source_ip) return r;
