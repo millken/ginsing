@@ -1,0 +1,39 @@
+@	3600	SOA      cloudns1.seccdn.com. dns-admin.seccdn.com. (
+		381989862
+		86400
+		15M;
+		1W;
+		10 )
+        NS      cloudns1.seccdn.com.
+        NS      cloudns2.seccdn.com.
+        NS      cloudns6.seccdn.com.
+        NS      cloudns34.seccdn.com.
+        NS      cloudns35.seccdn.com.
+        NS      cloudns74.seccdn.com.
+        NS      cloudns37.seccdn.com.
+        NS      cloudns38.seccdn.com.
+        NS      cloudns31.seccdn.com.
+        NS      cloudns30.seccdn.com.
+        NS      ns4.seccdn.com.
+        NS      cloudns3.seccdn.com.
+        NS      cloudns32.seccdn.com.
+        NS      cloudns33.seccdn.com.
+
+1	300 A  1.1.1.1
+1	300 A 2.2.2.2
+test.switch2	300	A	42.120.20.245
+www-any	600	A	1.1.1.3
+www	600	GLB:MM	www-any	:unknown
+www-beijingdx	600	A	2.3.4.5
+dx-1 300 A 1.1.1.1
+dx-2 300 A 2.2.2.2
+dx-2 300 CNAME 523.com.
+shlt 300 A 5.5.5.5
+@	600	GLB:MM	dx-2	:unknown
+@	600	GLB:MM	dx-2	shanghaidx	1.0	:rrgood
+@  600	GLB:MM	dx-1	searchengine	1.0	:rrgood
+@  600	GLB:MM	shlt	shanghailt	1.0	:rrgood
+@  600	GLB:MM	1	dx	1.0	:rrgood
+@ 300 MX 5 asdf.cc.
+@ 300 TXT sdfl=cname.cc.
+@ 300 A   3.4.5.6

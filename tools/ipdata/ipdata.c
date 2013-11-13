@@ -99,12 +99,19 @@ int get_member(char *buf) {
 int get_datacenter(char *line) {
 	char key[LEN],value[LEN];
 	char *ch;
+	int i= 0;
 	
 	ch = strchr(line,'=');
 	if (ch == NULL) return 1;	
 	*ch = '\0';
-	strcpy(value,line);
-	strcpy(key,ch+1);
+	ch = ch + 1;
+	while((line[i] == ' ')||(line[i] == '\t'))i++;
+	strcpy(value,line+i);
+	i = 0;
+	while((*(ch+i) == ' ')||(*(ch+i) == '\t'))i++;
+	strcpy(key,ch+i);
+
+	
 	drops(value);
 	drops(key);
 	
