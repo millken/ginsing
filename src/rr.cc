@@ -131,7 +131,7 @@ RRCompString::set_name(string dest, string *zonename){
     }
 
     int zp = dest.find( *zonename );
-    if( zp == dest.length() - zonename->length() ){
+    if((zp == dest.length() - zonename->length())&&(zp != string::npos)){
         // absolute name in zone
         same_zone = 1;
         fqdn      = dest;
