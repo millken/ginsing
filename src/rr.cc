@@ -327,6 +327,8 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
 		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
+	vrdm.clear();
+
     return 1;
 }
 

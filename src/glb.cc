@@ -58,6 +58,7 @@ respond(NTD *ntd, const RRSet *rs, int qty){
 		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
+	vrdm.clear();
     return ok;
 }
 
