@@ -288,20 +288,27 @@ RR_Alias::configure(InputF *f, Zone *z, string *rspec){
 
 int
 RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
-    vector<int> vrdm;
-    int i,j;
+	int i,size;
 
-    for(i=0; i<rr.size(); i++){
-		vrdm.push_back(i);
-    }
-    while(!vrdm.empty()) { 	
-    	srand((int)time(0)); 
-		i = rand()%(vrdm.size());
-		j = vrdm[i];
-        RR *r = rr[j];
+	if ( (time(NULL) % 2) == 0) {
+		i = rr.size();
+	 } else {
+		i = 1; 
+	}
+
+	size = rr.size();
+
+	while (size) {
+		RR *r;
+		if( i == 1 ){
+       		r = rr[size-i];
+		} else { 
+			r = rr[i-size];
+		}
+		size = size -1;
+
 		if (qty != TYPE_A) {
             if (r->type != qty){
-                vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
                 continue;
             }
         }
@@ -324,10 +331,8 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
                 if( ! r->add_add_ans(ntd, qkl, qty) ) return 1;
             }
         }
-		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
-	vrdm.clear();
 
     return 1;
 }

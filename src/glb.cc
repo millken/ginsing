@@ -38,16 +38,24 @@ RRSet_GLB_MM::add_rr(RR *r){
 // respond with all available matching RRs
 static inline int
 respond(NTD *ntd, const RRSet *rs, int qty){
-    int ok = 0,i,j;
-	vector<int> vrdm;
-    for(int i=0; i<rs->rr.size(); i++){
-		vrdm.push_back(i);
+	int ok = 0,i,size;
+	
+	if ((time(NULL) % 2) == 0) {
+		i = rs->rr.size();
+	} else {
+		i = 1;
 	}
-	while( !vrdm.empty()) {
-		srand((int)time(0));
-		i = rand()%(vrdm.size());
-		j = vrdm[i];
-        RR *rr = rs->rr[j];
+	size = rs->rr.size();
+
+	while(size) {
+        RR *rr;
+		if ( i == 1) {
+			rr = rs->rr[size-i];
+		} else {
+			rr = rs->rr[i-size];
+		}
+		size = size - 1;
+
         if( ! rr->can_satisfy(qty) )   continue;
         if( ! rr->probe_looks_good() ) continue;
 
@@ -55,10 +63,8 @@ respond(NTD *ntd, const RRSet *rs, int qty){
         if( rr->type == TYPE_CNAME && qty != TYPE_CNAME && qty != TYPE_ANY )
             rr->add_add_ans(ntd, CLASS_IN, qty);
         ok = 1;
-		vrdm.erase(vrdm.begin()+i,vrdm.begin()+i+1);
     }
 
-	vrdm.clear();
     return ok;
 }
 
