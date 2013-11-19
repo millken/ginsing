@@ -450,6 +450,7 @@ Zone::load(ZDB *db, InputF *f){
                 label.erase(0, dot+1);
             }
         }
+
 */
         DEBUG("label: %s, ttl: %d, class: %d, type: %d, wild: %d", label.c_str(), ttl, klass, type, wildp);
         DEBUG("rdata: %s; extra: %s", rdata.c_str(), extra.c_str());
