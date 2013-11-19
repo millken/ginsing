@@ -451,6 +451,7 @@ ZDB::find_rrset(const char *s,int type) const {
 	}
 	if(strlen(firstvalue) > 0 )return r;		
 
+	sprintf(itorbuf,"%s.%s",E_FLAG,buf);
     it = rrset.find(itorbuf);
     if (it != rrset.end()) {
         return it->second;
