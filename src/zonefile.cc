@@ -440,7 +440,7 @@ Zone::load(ZDB *db, InputF *f){
 
         if( label == "@" ) label = "";
 		if (label == "*" ) label = E_FLAG;
-
+/*
         if( label[0] == '*' ){
             // convert wildcard
             wildp = 1;
@@ -450,7 +450,7 @@ Zone::load(ZDB *db, InputF *f){
                 label.erase(0, dot+1);
             }
         }
-
+*/
         DEBUG("label: %s, ttl: %d, class: %d, type: %d, wild: %d", label.c_str(), ttl, klass, type, wildp);
         DEBUG("rdata: %s; extra: %s", rdata.c_str(), extra.c_str());
 

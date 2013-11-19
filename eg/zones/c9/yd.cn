@@ -1,0 +1,37 @@
+@	3600	SOA      cloudns1.seccdn.com. dns-admin.seccdn.com. (
+		384054842
+		86400
+		15M;
+		1W;
+		10 )
+		NS		cloudns1.seccdn.com.
+		NS		cloudns2.seccdn.com.
+		NS		cloudns6.seccdn.com.
+		NS		cloudns34.seccdn.com.
+		NS		cloudns35.seccdn.com.
+		NS		cloudns74.seccdn.com.
+		NS		cloudns37.seccdn.com.
+		NS		cloudns38.seccdn.com.
+		NS		cloudns31.seccdn.com.
+		NS		cloudns30.seccdn.com.
+		NS		ns4.seccdn.com.
+		NS		cloudns3.seccdn.com.
+		NS		cloudns32.seccdn.com.
+		NS		cloudns33.seccdn.com.
+xing-lt	300	A	2.2.2.2
+xing-searchengine	333	A	3.3.3.3
+xing-searchengine	333	A	6.6.6.6
+*	300	GLB:MM	xing-lt	lt	1.0	:rrgood
+*	333	GLB:MM	xing-searchengine	searchengine	1.0	:rrgood
+at-any	300	A	1.2.3.4
+at-any	300	A	3.3.3.32
+@	300	GLB:MM	at-any	:unknown
+www-any 333 A   7.7.7.2
+www-any 333 A  7.7.7.1
+www	333	GLB:MM	www-any	:unknown
+xing-any	300	CNAME	bt3witxv6l53nh2z.seccdn.seccdn3.com.
+*	300	GLB:MM	xing-any	:unknown
+at-lt	454	CNAME	aa.com.
+@	454	GLB:MM	at-lt	lt	1.0	:rrgood
+www-lt	333	CNAME	basdf.co.
+www	333	GLB:MM	www-lt	lt	1.0	:rrgood

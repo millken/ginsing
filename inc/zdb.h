@@ -387,6 +387,7 @@ public:
 class ZDB {
     vector<Zone*>		zone;
     vector<RRSet*>		wildcard;
+	MapRRSet			pananalisy;
     MapRRSet			rrset;
 public:
     vector<RR*>			monitored;
@@ -398,6 +399,10 @@ public:
     Zone  *find_zone(const char *)        const;
     int insert(RRSet *,int );
     int analyze();
+	int num_level_domain(const char *)const;
+	void get_two_domain(const char *,char *)const;
+	int match_pananalisy_format(const char *,char *,int)const;
+	int match_format(char *,char *)const;
     void add_monitored(RR*);
 };
 

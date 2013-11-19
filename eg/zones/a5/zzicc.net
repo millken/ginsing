@@ -1,0 +1,31 @@
+@	3600	SOA      cloudns1.seccdn.com. dns-admin.seccdn.com. (
+		381989866
+		86400
+		15M;
+		1W;
+		10 )
+		NS		cloudns1.seccdn.com.
+		NS		cloudns2.seccdn.com.
+		NS		cloudns6.seccdn.com.
+		NS		cloudns34.seccdn.com.
+		NS		cloudns35.seccdn.com.
+		NS		cloudns74.seccdn.com.
+		NS		cloudns37.seccdn.com.
+		NS		cloudns38.seccdn.com.
+		NS		cloudns31.seccdn.com.
+		NS		cloudns30.seccdn.com.
+		NS		ns4.seccdn.com.
+		NS		cloudns3.seccdn.com.
+		NS		cloudns32.seccdn.com.
+		NS		cloudns33.seccdn.com.
+*	300	A	183.111.128.15
+@	300	A	183.111.128.15
+anxia	300	A	183.111.128.15
+bbs	300	A	183.111.128.15
+host1	300	A	183.111.128.15
+host2	300	A	183.111.128.15
+news	300	A	183.111.128.15
+test	300	A	183.111.128.15
+vip	300	A	183.111.128.15
+www	300	A	210.209.122.69
+xingfu	300	A	183.111.128.15
