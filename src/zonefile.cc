@@ -413,7 +413,7 @@ Zone::load(ZDB *db, InputF *f){
     string rdata;
     string extra;
     int ttl=-1, klass = CLASS_IN, type=-1;
-	unsigned long myflag = 0,everyflag=0;
+	unsigned long myflag = 0;
 	int flag = 0;
 
 
@@ -439,7 +439,6 @@ Zone::load(ZDB *db, InputF *f){
         bool wildp = 0;
 
         if( label == "@" ) label = "";
-		if (label == "*" ) label = E_FLAG;
 /*
         if( label[0] == '*' ){
             // convert wildcard
@@ -476,10 +475,6 @@ Zone::load(ZDB *db, InputF *f){
 			myflag++;
 			label = S_FLAG;
 			if (myflag == 1)flag = 1;
-		}
-		if ((!strcmp(label.c_str(),E_FLAG))&&(type == TYPE_GLB_MM)){
-			everyflag++;
-			if (everyflag == 1)flag = 1;
 		}
         if( !insert(db, rr, &label,flag) ){
             f->problem("unable to insert RR, not compitble with RRSet");
