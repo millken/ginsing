@@ -118,6 +118,7 @@ ZDB::insert(RRSet *rrs,int type){
 		wildcard.push_back(rrs);
     } else {
 		rrset[ rrs->fqdn.c_str() ] = rrs;
+		if (strchr(rrs->fqdn.c_str(),'*')) pananalisy[rrs->fqdn.c_str()] = rrs;
 	}
 
     return 1;
@@ -337,42 +338,124 @@ Zone::find_rrset(string *s, bool wp) const {
     return 0;
 }
 
+int 
+ZDB::num_level_domain(const char *s)const {
+	int num = 0,len;
+
+	len = strlen(s);
+	while( len > 0 ){
+		if (*(s+len-1) == '.') num++;
+		len--;
+	}
+	return num;
+}
+
+void
+ZDB::get_two_domain(const char *s,char *domain)const{
+	char *ch;
+	int len,num = 0;
+	
+	len = strlen(s);
+	while ( len > 0 ) {
+		if( *(s+len-1) == '.') num++;
+		if( num == 3 ){ strcpy(domain,s+len);return ;}
+		len--;
+	}
+	return ;
+}
+
+int 
+ZDB::match_format(char *s,char *d) const {
+	char *ps,*pd;
+
+	pd = d; ps = s;
+	if((*d != '*') && (*d != *s)) return 1;
+	while ( *pd != '\0') {
+		if( *pd == '*') {
+			pd = pd + 1; ps = ps +1;
+			if(*pd == '\0') return 0;
+			if(*ps == '\0') return 1;
+			continue;
+		}
+		ps = strchr(ps,*pd);
+		if(!ps) return 1;
+		ps = ps + 1;pd = pd +1;
+		if((*ps == '\0')&&(*pd != '\0')) return 1;
+	}
+	if((*(pd - 1) != '*')&&(*ps != '\0')) return 1;
+
+	return 0;
+}
+
+int 
+ZDB::match_pananalisy_format(const char *s,char *itorbuf,int level) const {
+	char src[MAXNAME+2],dest[MAXNAME+2];
+	char *sc,*scv,*d,*dv;
+	int ndel = 0;
+
+	strcpy(src,s); strcpy(dest,itorbuf);
+	scv = src; dv = dest;
+
+	while(ndel < (level - 2)) {
+		sc = strchr(scv,'.'); d = strchr(dv,'.');
+		*sc = '\0'; *d = '\0';
+		if( match_format(scv,dv) ) return 1;
+		scv = sc + 1; dv = d + 1;
+		ndel++;
+	}
+		
+	return 0;
+}
 RRSet *
 ZDB::find_rrset(const char *s,int type) const {
 
     // rrset[ s ]
-    MapRRSet::const_iterator it ;
+   	MapRRSet::const_iterator it ;
+	RRSet *r;
+	char buf[MAXNAME+2],itorbuf[MAXNAME+2],firstvalue[MAXNAME+2];
+	int level = 0,itorlen;
 	
+	memset(firstvalue,0,sizeof(firstvalue));
+
 	if (type == TYPE_A) {
-        char buf[MAXNAME+2];
-        memset(buf,0,sizeof(buf));
         sprintf(buf,"%s.%s",S_FLAG,s);
         it = rrset.find(buf);
         if (it != rrset.end()) return it->second;
     }
 
-
 	it  = rrset.find( s );
     if( it != rrset.end() ){
         return it->second;
-    } else { 
-		char array[MAXNAME+1];
-		char *buf,*ch,*p;
-		
-		buf = strdup(s);
-		p = buf;
-		ch = strchr(buf,'.');
-		while (ch != NULL) {
-			sprintf(array,"%s.%s",E_FLAG,ch+1);
-			it = rrset.find(array);
-			if (it != rrset.end()) {
-				free(p);
-				return it->second;
+    } 
+
+	level = num_level_domain(s);
+	get_two_domain(s,buf);
+
+	switch(level) {
+		case 0|1|2:
+			break;
+		default:
+			for( it = pananalisy.begin();it != pananalisy.end();it++) {
+				strcpy(itorbuf,(*it).first);
+				itorlen = num_level_domain(itorbuf);
+				if((itorlen == level) && (strstr(itorbuf,buf))) {
+					if(!match_pananalisy_format(s,itorbuf,itorlen)) {
+						if(strcmp(itorbuf,firstvalue) > 0 ) {
+							strcpy(firstvalue,(*it).first);
+							r = it->second;
+						}
+					}
+				}
 			}
-			buf = ch + 1; 
-			ch = strchr(buf,'.');
-		}
+			break;
 	}
+	if(strlen(firstvalue) > 0 )return r;		
+
+    it = rrset.find(itorbuf);
+    if (it != rrset.end()) {
+        return it->second;
+    }
+
     // check wildcards
     int l = strlen(s);
     for(int i=0; i<wildcard.size(); i++){
