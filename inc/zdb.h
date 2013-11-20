@@ -17,7 +17,6 @@
 #include "mon.h"
 
 #define S_FLAG	"myself"
-#define E_FLAG  "everyalldomain"
 using std::string;
 using std::vector;
 using std::map;
@@ -165,6 +164,19 @@ protected:
 public:
     int configure(InputF *, Zone *, string *);
 };
+
+class RR_SRV : public RR {
+    int priority;
+    int weight;
+    int port;
+    RRCompString target;
+protected:
+    ~RR_SRV(){};
+    int _put_rr(NTD* ntd) const;
+public:
+    int configure(InputF *,Zone *,string *);
+};
+
 class RR_SOA   : public RR {
 
     RRCompString	mname;
