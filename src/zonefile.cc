@@ -262,6 +262,7 @@ struct {
     { "TXT",	  3, TYPE_TXT },
     { "ALIAS",    5, TYPE_ALIAS },
     { "GLB:RR",	  6, TYPE_GLB_RR },
+	{ "SRV",      3, TYPE_SRV},
 //    { "GLB:GEO",  7, TYPE_GLB_GEO },
     { "GLB:MM",   6, TYPE_GLB_MM },
 };
@@ -555,6 +556,33 @@ RR_MX::configure(InputF *f, Zone *z, string *rspec){
     if( ep == -1 ){ f->problem("invalid MX"); return 1; }
 
     dest.set_name( rspec->substr(ep+1), &z->zonename );
+
+    return 0;
+}
+
+int
+RR_SRV::configure(InputF *f,Zone *z,string *rspec) {
+    char *ch;
+
+    if( !isdigit(rspec->at(0)) ){f->problem("invalid priority");return 1;}
+    priority = atoi(rspec->c_str());
+
+    ch = strchr((char *)rspec->c_str(),' ');
+    if ( !ch ){ f->problem("invalid weight"); return 1;}
+    ch = ch + 1;
+    if( !isdigit(*ch) ){ f->problem("invalid weight");return 1;}
+    weight = atoi(ch);
+
+    ch = strchr(ch,' ');
+    if ( !ch ){ f->problem("invalid port"); return 1;}
+    ch = ch + 1;
+    if( !isdigit(*ch) ){ f->problem("invalid port");return 1;}
+    port = atoi(ch);
+
+    ch = strchr(ch,' ');
+    if( !ch ){ f->problem("invalid target"); return 1;}
+    ch = ch + 1;
+    target.set_name(ch,&z->zonename);
 
     return 0;
 }

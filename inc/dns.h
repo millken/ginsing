@@ -46,6 +46,7 @@
 #define TYPE_MX		15	// rfc 1035 3.2.2
 #define TYPE_TXT	16	// rfc 1035 3.2.2
 #define TYPE_AAAA	28	// rfc 1886 2.1
+#define TYPE_SRV    0x21 // rfc 2025
 #define TYPE_OPT	41	// rfc 2671 7 (edns0)
 #define TYPE_ANY	255	// rfc 1035 3.2.3
 

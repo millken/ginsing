@@ -43,6 +43,7 @@ RR::make(string *lab, int kl, int ty, int tt, bool wild){
         case TYPE_GLB_GEO:  rr = new RR_GLB_Geo;	break;
         case TYPE_GLB_MM:   rr = new RR_GLB_MM;		break;
         case TYPE_GLB_Hash: rr = new RR_GLB_Hash;	break;
+		case TYPE_SRV:      rr = new RR_SRV;        break;
         default:
             BUG("cannot create RR type %d", ty);
             return 0;
@@ -497,6 +498,21 @@ RR_MX::_put_rr(NTD *ntd) const {
 
     return ntd->space_avail(0);
 }
+
+int
+RR_SRV::_put_rr(NTD *ntd) const {
+    int zpos = target.find_ztab(ntd);
+    int dl = target.wire_len(ntd,zpos);
+
+    ntd->respb.put_rr(type,klass,ttl,dl+6);
+    ntd->respb.put_short(priority);
+    ntd->respb.put_short(weight);
+    ntd->respb.put_short(port);
+    target.put(ntd,zpos);
+
+    return ntd->space_avail(0);
+}
+
 
 int
 RR_SOA::_put_rr(NTD *ntd) const {
