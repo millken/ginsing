@@ -442,7 +442,7 @@ ZDB::find_pananalisy(const char *s,int level) const {
 RRSet *
 ZDB::find_rrset(const char *s,int type) const {
     // rrset[ s ]
-   	MapRRSet::const_iterator it ;
+	MapRRSet::const_iterator it ;
 	int level = num_level_domain(s);
 
 
@@ -450,24 +450,24 @@ ZDB::find_rrset(const char *s,int type) const {
 
 	if(( type==TYPE_A )&&( level == 2 )) {
 		char buf[MAXNAME+2];
-        sprintf(buf,"%s.%s",S_FLAG,s);
-        it = rrset.find(buf);
-        if (it != rrset.end()) return it->second;
+		sprintf(buf,"%s.%s",S_FLAG,s);
+		it = rrset.find(buf);
+		if( it!=rrset.end() ) return it->second;
     }
 
 	it  = rrset.find( s );
-    if( it != rrset.end() ){
-        return it->second;
-    } 
+	if( it != rrset.end() ){
+		return it->second;
+	} 
 
 	RRSet *r = find_pananalisy(s,level);
 	if( r ) return r;
 
     // check wildcards
-    int l = strlen(s);
-    for(int i=0; i<wildcard.size(); i++){
-        if( wildcard[i]->wildmatch(s, l) ) return wildcard[i];
-    }
+	int l = strlen(s);
+	for(int i=0; i<wildcard.size(); i++){
+		if( wildcard[i]->wildmatch(s, l) ) return wildcard[i];
+	}
 
     return 0;
 }
