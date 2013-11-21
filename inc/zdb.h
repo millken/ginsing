@@ -413,7 +413,8 @@ public:
     int analyze();
 	int num_level_domain(const char *)const;
 	void get_two_domain(const char *,char *)const;
-	int match_pananalisy_format(const char *,char *,int)const;
+	RRSet *find_pananalisy(const char*,int)const;
+	int match_pananalisy_format(const char *,const char *,int)const;
 	int match_format(char *,char *)const;
     void add_monitored(RR*);
 };

@@ -388,7 +388,7 @@ ZDB::match_format(char *s,char *d) const {
 }
 
 int 
-ZDB::match_pananalisy_format(const char *s,char *itorbuf,int level) const {
+ZDB::match_pananalisy_format(const char *s,const char *itorbuf,int level) const {
 	char src[MAXNAME+2],dest[MAXNAME+2];
 	char *sc,*scv,*d,*dv;
 	int ndel = 0;
@@ -406,18 +406,50 @@ ZDB::match_pananalisy_format(const char *s,char *itorbuf,int level) const {
 		
 	return 0;
 }
+
+RRSet *
+ZDB::find_pananalisy(const char *s,int level) const {
+    MapRRSet::const_iterator it;
+    RRSet *r;
+    char domain[MAXNAME+2],buf[MAXNAME+2];
+
+    memset(buf,0,sizeof(buf));
+
+    get_two_domain(s,domain);
+
+    for( it=pananalisy.begin(); it!=pananalisy.end(); it++) {
+        if( !strstr((*it).first,domain) ) continue;
+        if( num_level_domain((*it).first) != level ) continue;
+        if( match_pananalisy_format(s,(*it).first,level) == 1 ) continue;
+        if( strcmp((*it).first,buf) <= 0) continue;
+        strcpy(buf,(*it).first);
+        r = it->second;
+    }
+
+    if( strlen(buf) > 0 ) return r;
+
+//match *.example.com 
+    sprintf(buf,"%s.%s","*",domain);
+    it = pananalisy.find(buf);
+    if (it != pananalisy.end()) {
+        return it->second;
+    }
+
+    return 0;
+}
+
+
 RRSet *
 ZDB::find_rrset(const char *s,int type) const {
-
     // rrset[ s ]
    	MapRRSet::const_iterator it ;
-	RRSet *r;
-	char buf[MAXNAME+2],itorbuf[MAXNAME+2],firstvalue[MAXNAME+2];
-	int level = 0,itorlen;
-	
-	memset(firstvalue,0,sizeof(firstvalue));
+	int level = num_level_domain(s);
 
-	if (type == TYPE_A) {
+
+	if( level < 2 ) return 0;	
+
+	if(( type==TYPE_A )&&( level == 2 )) {
+		char buf[MAXNAME+2];
         sprintf(buf,"%s.%s",S_FLAG,s);
         it = rrset.find(buf);
         if (it != rrset.end()) return it->second;
@@ -428,34 +460,8 @@ ZDB::find_rrset(const char *s,int type) const {
         return it->second;
     } 
 
-	level = num_level_domain(s);
-	get_two_domain(s,buf);
-
-	switch(level) {
-		case 0|1|2:
-			break;
-		default:
-			for( it = pananalisy.begin();it != pananalisy.end();it++) {
-				strcpy(itorbuf,(*it).first);
-				itorlen = num_level_domain(itorbuf);
-				if((itorlen == level) && (strstr(itorbuf,buf))) {
-					if(!match_pananalisy_format(s,itorbuf,itorlen)) {
-						if(strcmp(itorbuf,firstvalue) > 0 ) {
-							strcpy(firstvalue,(*it).first);
-							r = it->second;
-						}
-					}
-				}
-			}
-			break;
-	}
-	if(strlen(firstvalue) > 0 )return r;		
-
-	sprintf(itorbuf,"%s.%s","*",buf);
-    it = pananalisy.find(itorbuf);
-    if (it != pananalisy.end()) {
-        return it->second;
-    }
+	RRSet *r = find_pananalisy(s,level);
+	if( r ) return r;
 
     // check wildcards
     int l = strlen(s);
