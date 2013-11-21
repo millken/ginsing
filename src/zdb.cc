@@ -453,12 +453,12 @@ ZDB::find_rrset(const char *s,int type) const {
 		sprintf(buf,"%s.%s",S_FLAG,s);
 		it = rrset.find(buf);
 		if( it!=rrset.end() ) return it->second;
-    }
+	}
 
 	it  = rrset.find( s );
 	if( it != rrset.end() ){
 		return it->second;
-	} 
+	}
 
 	RRSet *r = find_pananalisy(s,level);
 	if( r ) return r;
