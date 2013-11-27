@@ -28,7 +28,7 @@
 
 void
 RRSet_GLB_MM::add_rr(RR *r){
-
+	if(r->type != TYPE_GLB_MM) return;
     RRSet::add_rr(r);
 
     RR_GLB_MM *rm = (RR_GLB_MM*)r;
