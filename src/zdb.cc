@@ -242,7 +242,7 @@ RR_Alias::wire_up(ZDB *db, Zone *z, RRSet *s){
 
     // same zone?
     RRSet *rrs = z->find_rrset( & target, 0 );
-    if( ! rrs ) rrs = db->find_rrset( target.c_str(),TYPE_ALIAS );
+    if( ! rrs ) rrs = db->find_rrset( target.c_str(),TYPE_A);
     if( !rrs ){
         PROBLEM("cannot locate ALIAS target %s => %s", s->fqdn.c_str(), target.c_str());
         return;

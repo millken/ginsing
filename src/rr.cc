@@ -279,10 +279,27 @@ RR_Compress::configure(InputF *f, Zone *z, string *rspec){
 
 int
 RR_Alias::configure(InputF *f, Zone *z, string *rspec){
+    char buf[MAXNAME];
+    char *ch;
 
-    target.assign( *rspec );
-    DEBUG("alias => %s", rspec->c_str());
+    strcpy(buf,rspec->c_str());
+
+    ch = strchr(buf,' ');
+    if( !ch ) {
+        target.assign( *rspec );
+        DEBUG("alias => %s", rspec->c_str());
+        return 0;
+    }
+    *ch = '\0';
+    ch = ch + 1;
+    while((*ch == ' ')||(*ch == '\t')) ch++;
+
+    sprintf(buf,"%s.%s.",buf,ch);
+
+    target = buf;
+    DEBUG("alias => %s,target.c_str()=%s", rspec->c_str(),target.c_str());
     return 0;
+
 }
 
 //################################################################
