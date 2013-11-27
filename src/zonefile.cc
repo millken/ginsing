@@ -736,6 +736,7 @@ RR_GLB_MM::configure(InputF *f, Zone *z, string *rspec){
         failover_alg  = GLB_FAILOVER_NEXTBEST;
     }
 
-    DEBUG("glb-mm %s => %s; on fail: %s", datacenter.c_str(), comp_name.c_str(), failover_name.c_str());
+	compname = comp_name + "." + z->zonename;
+    DEBUG("glb-mm %s => %s; on fail: %s", datacenter.c_str(), compname.c_str(), failover_name.c_str());
     return 0;
 }

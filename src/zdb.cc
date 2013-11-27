@@ -252,6 +252,13 @@ RR_Alias::wire_up(ZDB *db, Zone *z, RRSet *s){
 
     for(int i=0; i<rrs->rr.size(); i++){
         RR *r = rrs->rr[i];
+		if( r->type == TYPE_GLB_MM) {
+			RR_GLB_MM *m = (RR_GLB_MM*)r;
+			if(!strcmp(s->fqdn.c_str(),m->compname.c_str())) {
+            	PROBLEM("cannot ALIAS => GLB (%s => %s)", s->fqdn.c_str(), target.c_str());
+				return;
+			}
+		}
         if( r->type == TYPE_ALIAS ){
             PROBLEM("cannot ALIAS => ALIAS (%s => %s)", s->fqdn.c_str(), target.c_str());
             return;
