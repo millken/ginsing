@@ -264,9 +264,10 @@ public:
 
 class RR_GLB_MM  : public RR_GLB {
     friend class RRSet_GLB_MM;
-
+public:
     string		datacenter;
     string		failover_name;
+	string 		compname;
     int			failover_alg;
     RRSet		*failover_rrset;
 
