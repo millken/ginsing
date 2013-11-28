@@ -94,7 +94,10 @@ Zone::insert(ZDB *db, RR *rr, string *label,int flag){
             db->insert(rrs,rr->type);
 
         DEBUG("new RRSet wild %d, name %s, zone %s; fqdn %s", wildp, label->c_str(), zonename.c_str(), rrs->fqdn.c_str());
-    }
+    } else {
+		if(rr->type == TYPE_ALIAS)return 1;
+
+	}
 
     // glb RR + RRSet must match
     //if( ! rrs->is_compat(rr) )
