@@ -94,7 +94,8 @@ Zone::insert(ZDB *db, RR *rr, string *label,int flag){
             db->insert(rrs,rr->type);
 
         DEBUG("new RRSet wild %d, name %s, zone %s; fqdn %s", wildp, label->c_str(), zonename.c_str(), rrs->fqdn.c_str());
-    }
+    } 
+
 
     // glb RR + RRSet must match
     //if( ! rrs->is_compat(rr) )
@@ -254,9 +255,17 @@ RR_Alias::wire_up(ZDB *db, Zone *z, RRSet *s){
         RR *r = rrs->rr[i];
 		if( r->type == TYPE_GLB_MM) {
 			RR_GLB_MM *m = (RR_GLB_MM*)r;
-			if(!strcmp(s->fqdn.c_str(),m->compname.c_str())) {
-            	PROBLEM("cannot ALIAS => GLB (%s => %s)", s->fqdn.c_str(), target.c_str());
-				return;
+			char *ch = strstr((char*)(s->fqdn.c_str()),"_TYPE");
+			if( ch ) {
+				if(!strcmp(ch+5,m->compname.c_str())){
+					PROBLEM("cannot ALIAS => GLB (%s => %s)", ch+5 , target.c_str());
+					return;
+				}
+			} else {
+				if( !strcmp(s->fqdn.c_str(),m->compname.c_str())) {
+					PROBLEM("cannot ALIAS => GLB (%s => %s)", s->fqdn.c_str(), target.c_str());
+					return;
+				}
 			}
 		}
         if( r->type == TYPE_ALIAS ){
@@ -337,11 +346,17 @@ RRSet *
 Zone::find_rrset(string *s, bool wp) const {
 
     // only used while loading zone, no need for speed
+	char *ch;
+	for(int i=0; i<rrset.size(); i++){
+		if(rrset[i]->wildcard != wp) continue;
+		ch = strstr((char*)(rrset[i]->name.c_str()),"_TYPE");
+		if( ch ) {
+			if(strcmp(s->c_str(),ch + 5) == 0)return rrset[i];
+		} else {
+			if(rrset[i]->name == *s) return rrset[i];
+		}
+	}
 
-    for(int i=0; i<rrset.size(); i++){
-        if( rrset[i]->wildcard == wp && rrset[i]->name == *s )
-            return rrset[i];
-    }
     return 0;
 }
 
@@ -445,11 +460,50 @@ ZDB::find_pananalisy(const char *s,int level) const {
     return 0;
 }
 
+int
+ZDB::getKey(string &label,int ity,int level ) const
+{
+    string str;
+    str = "";
+    if(level == 2) str = ".";
+    switch( ity ) {
+        case TYPE_PTR:
+            label = "PTR_TYPE" + str + label;
+            break;
+        case TYPE_MX:
+            label = "MX_TYPE" + str + label;
+            break;
+        case TYPE_SRV:
+            label = "SRV_TYPE" + str + label;
+            break;
+        case TYPE_TXT:
+            label = "TXT_TYPE" + str + label;
+            break;
+        case TYPE_AAAA:
+            label = "AAAA_TYPE" + str + label;
+            break;
+        case TYPE_ALIAS:
+            label = "ALIAS_TYPE" + str + label;
+            break;
+        case TYPE_GLB_MM:
+            label = "GLBMM_TYPE" + str + label;
+            break;
+        default:
+            break;
+ 	} 
+
+    return 0;
+
+}
+
+
 
 RRSet *
 ZDB::find_rrset(const char *s,int type) const {
     // rrset[ s ]
 	MapRRSet::const_iterator it ;
+	string label;
+	int i= 1,ity;
 	int level = num_level_domain(s);
 
 
@@ -462,17 +516,47 @@ ZDB::find_rrset(const char *s,int type) const {
 		if( it!=rrset.end() ) return it->second;
 	}
 
-	it  = rrset.find( s );
-	if( it != rrset.end() ){
-		return it->second;
-	}
+	label = s;
+	if(type == TYPE_A) {
+		while(i) {
+			switch(i) {
+				case 1:
+					ity = type;
+					break;
+				case 2:
+					ity = TYPE_ALIAS;
+					getKey(label,ity,level);
+					break;
+				case 3:
+					ity = TYPE_GLB_MM;
+					getKey(label,ity,level);
+					break;
+				default:
+					i = 0;
+					continue;
+					break;
+			}
+			it  = rrset.find( label.c_str() );
+			if( it != rrset.end() ) {
+				return it->second;
+			}
+			label = s;
+			i++;
+		}
+    } else {
+        getKey(label,type,level);
+        it = rrset.find(label.c_str());
+        if( it != rrset.end()) return it->second;
+    }
+
+	
 
 	RRSet *r = find_pananalisy(s,level);
 	if( r ) return r;
 
     // check wildcards
 	int l = strlen(s);
-	for(int i=0; i<wildcard.size(); i++){
+	for(i=0; i<wildcard.size(); i++){
 		if( wildcard[i]->wildmatch(s, l) ) return wildcard[i];
 	}
 

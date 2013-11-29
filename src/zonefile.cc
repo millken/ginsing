@@ -408,6 +408,39 @@ parse_probe(ZDB *db, RR *rr, InputF *f, string *rdata, string *extra){
 }
 
 int
+Zone::changekey(string &label,int ity)
+{
+	switch( ity ) {
+		case TYPE_PTR:
+			label = "PTR_TYPE" + label;
+			break;
+		case TYPE_MX:
+			label = "MX_TYPE" + label;
+			break;
+		case TYPE_SRV:
+			label = "SRV_TYPE" + label;
+			break;
+ 		case TYPE_TXT:
+ 			label = "TXT_TYPE" + label;
+ 			break;
+		case TYPE_AAAA:
+			label = "AAAA_TYPE" + label;
+			break;
+		case TYPE_ALIAS:
+ 			label = "ALIAS_TYPE" + label;
+ 			break;
+		case TYPE_GLB_MM:
+			label = "GLBMM_TYPE" + label;
+			break;
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+
+int
 Zone::load(ZDB *db, InputF *f){
     string line;
     string label;
@@ -454,6 +487,7 @@ Zone::load(ZDB *db, InputF *f){
 */
         DEBUG("label: %s, ttl: %d, class: %d, type: %d, wild: %d", label.c_str(), ttl, klass, type, wildp);
         DEBUG("rdata: %s; extra: %s", rdata.c_str(), extra.c_str());
+		if(!strchr(label.c_str(),'*')) changekey(label,type);
 
         // create rr
         RR *rr = RR::make(&label, klass, type, ttl, wildp);
