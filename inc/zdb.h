@@ -384,6 +384,7 @@ private:
     ~Zone();
     int load(ZDB*, InputF*);
     int insert(ZDB *, RR*, string *,int);
+	int changekey(string &,int);
     int analyze(ZDB*);
     bool zonematch(const char *, int)      const;
     void wire_up(ZDB*);
@@ -418,6 +419,7 @@ public:
 	int match_pananalisy_format(const char *,const char *,int)const;
 	int match_format(char *,char *)const;
     void add_monitored(RR*);
+	int getKey(string& ,int,int) const;
 };
 
 extern ZDB *zdb;
