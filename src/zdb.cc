@@ -349,6 +349,10 @@ Zone::find_rrset(string *s, bool wp) const {
 	char *ch;
 	for(int i=0; i<rrset.size(); i++){
 		if(rrset[i]->wildcard != wp) continue;
+		if(strstr((char*)(s->c_str()),"_TYPE")) {
+			if(rrset[i]->name == *s) return rrset[i];
+			continue;
+		}
 		ch = strstr((char*)(rrset[i]->name.c_str()),"_TYPE");
 		if( ch ) {
 			if(strcmp(s->c_str(),ch + 5) == 0)return rrset[i];
@@ -520,14 +524,14 @@ ZDB::find_rrset(const char *s,int type) const {
 	if(type == TYPE_A) {
 		while(i) {
 			switch(i) {
-				case 1:
+				case 3:
 					ity = type;
 					break;
 				case 2:
 					ity = TYPE_ALIAS;
 					getKey(label,ity,level);
 					break;
-				case 3:
+				case 1:
 					ity = TYPE_GLB_MM;
 					getKey(label,ity,level);
 					break;
