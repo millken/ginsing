@@ -298,7 +298,7 @@ public:
     virtual int analyze(Zone*);
     void wire_up(ZDB*, Zone *);
     bool wildmatch(const char *, int)       const;
-    virtual int add_answers(NTD*, int, int) const;
+    virtual int add_answers(NTD*, int, int,int) const;
     virtual int add_additnl(NTD*, int, int) const;
     virtual bool is_compat(RR*)             const;
 
@@ -356,12 +356,12 @@ protected:
     int a_a_failover_rrall(const RR_GLB_MM *, NTD *, int)      const;
     int a_a_failover_rrgood(const RR_GLB_MM *, NTD *, int)     const;
     int a_a_failover_specify(const RR_GLB_MM *, NTD *, int)    const;
-    int a_a_failover_specify(const char *, NTD *, int)         const;
+    int a_a_failover_specify(const char *, NTD *, int,int)         const;
 public:
     void add_rr(RR *);
     RRSet_GLB_MM(Zone* z, string *l, bool wp) : RRSet_GLB(z,l,wp) {}
     bool is_compat(RR*)                                        const;
-    int add_answers(NTD*, int, int)                            const;
+    int add_answers(NTD*, int, int,int)                            const;
 
 };
 
@@ -409,7 +409,7 @@ public:
 public:
     ~ZDB();
     int load(string*, string *);
-    RRSet *find_rrset(const char *,int)       const;
+    RRSet *find_rrset(const char *,int,int,NTD*)       const;
     Zone  *find_zone(const char *)        const;
     int insert(RRSet *,int );
     int analyze();
