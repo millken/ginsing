@@ -175,7 +175,7 @@ RRSet_GLB_MM::find_element(const char *dc)const  {
 }
 
 int
-RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
+RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty,int flag) const {
 
     if( qkl != CLASS_IN ) return 0;
 
@@ -197,7 +197,7 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         ntd->mmd.logflags |= GLBMM_F_NOLOC;
         // don't know where this user is
         // is there a configured "unknown" record?
-        int res = a_a_failover_specify(":unknown", ntd, qty);
+        int res = a_a_failover_specify(":unknown", ntd, qty,flag);
         if( res ) return res;
         // otherwise use the first available
         //return add_answers_first_match(ntd, qty);
@@ -214,6 +214,7 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
     for(int i=0; i<nelem; i++){
         const char *dcn = mme[i].datacenter;
         if( !dcn ) continue;
+		if(mme[i].metric) continue;
         const RR_GLB_MM *r = find_element(dcn);
         const RRSet *rs = r ? r->comp_rrset : 0;
         if( ! rs ){
@@ -221,10 +222,8 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
             continue;
         }
         
-		if(!mme[i].metric) {
-            respond(ntd, rs, qty );
-            return 1;        
-        } 
+       if(!flag)respond(ntd, rs, qty );
+		return 1;
 
     
         /*
@@ -262,7 +261,7 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         }
         */
     }
-    int res = a_a_failover_specify(":unknown", ntd, qty);
+    int res = a_a_failover_specify(":unknown", ntd, qty,flag);
     if( res ) return res;
     return 0;
     /*
@@ -450,11 +449,11 @@ RRSet_GLB_MM::a_a_failover_specify(const RR_GLB_MM *dbest, NTD *ntd, int qty) co
 
     // use configured datacenter
     const char *where  = dbest->failover_name.c_str();
-    return a_a_failover_specify(where, ntd, qty);
+    return a_a_failover_specify(where, ntd, qty,0);
 }
 
 int
-RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty) const {
+RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty,int flag) const {
 
     // use specified dst
     const RR_GLB_MM *r = find( dst );
@@ -470,6 +469,7 @@ RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty) const {
         if( ! rr->can_satisfy(qty) )   continue;
 
         DEBUG("failover to specified '%s', using %s", dst, rr->name.c_str());
+		if(flag) return 1;
         return respond(ntd, rs, qty);
     }
 
