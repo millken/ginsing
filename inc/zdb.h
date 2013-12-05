@@ -391,6 +391,8 @@ private:
 
 public:
     RRSet *find_rrset(string *, bool wild) const;
+    RRSet *find_flag_rrset(string *, bool wild) const;
+    RRSet *find_unflag_rrset(string *, bool wild) const;
     int add_ns_auth(NTD*)                  const;
     int add_ns_addl(NTD*)                  const;
     int add_soa_auth(NTD *)                const;

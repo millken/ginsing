@@ -1,3 +1,3 @@
 
-const char *version = "solvemedia/ginsing/dns 3.1";
+const char *version = "yundun/dns 2.0";
 

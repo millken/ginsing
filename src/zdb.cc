@@ -341,24 +341,43 @@ ZDB::analyze(){
 }
 
 //################################################################
+RRSet *
+Zone::find_flag_rrset(string *s,bool wp) const 
+{
+	for(int i=0;i<rrset.size();i++) {
+		if((rrset[i]->wildcard == wp) && (rrset[i]->name == *s))
+			return rrset[i]; 
+	}	
+
+	return 0;
+}
+
+RRSet *
+Zone::find_unflag_rrset(string *s,bool wp) const
+{
+	char *ch;
+	
+	for(int i=0;i<rrset.size();i++) {
+		if(rrset[i]->wildcard != wp)continue;
+		ch = strstr((char*)(rrset[i]->name.c_str()),"_TYPE");
+		if( ch ) {
+			if(strcmp(s->c_str(),ch + 5) == 0) return rrset[i];
+		} else {
+			if(rrset[i]->name == *s) return rrset[i];
+		}
+	}
+
+	return 0;
+}
 
 RRSet *
 Zone::find_rrset(string *s, bool wp) const {
 
     // only used while loading zone, no need for speed
-	char *ch;
-	for(int i=0; i<rrset.size(); i++){
-		if(rrset[i]->wildcard != wp) continue;
-		if(strstr((char*)(s->c_str()),"_TYPE")) {
-			if(rrset[i]->name == *s) return rrset[i];
-			continue;
-		}
-		ch = strstr((char*)(rrset[i]->name.c_str()),"_TYPE");
-		if( ch ) {
-			if(strcmp(s->c_str(),ch + 5) == 0)return rrset[i];
-		} else {
-			if(rrset[i]->name == *s) return rrset[i];
-		}
+	if(strstr((char*)(s->c_str()),"_TYPE")) {
+		return 	find_flag_rrset(s,wp);
+	} else {
+		return find_unflag_rrset(s,wp);
 	}
 
     return 0;
