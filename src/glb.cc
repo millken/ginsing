@@ -190,24 +190,24 @@ RRSet_GLB_MM::check_answers(NTD *ntd,int qkl,int qty) const
 	
 
 
-	if(! MMDB::locate(ntd) ) return 0; 
-	
-	const RR_GLB_MM *best  = 0;
-    MMElem *mme = ntd->mmd.mm;
-    int nelem   = ntd->mmd.nelem;
+	if( MMDB::locate(ntd) ) {  
+		const RR_GLB_MM *best  = 0;
+   		MMElem *mme = ntd->mmd.mm;
+    	int nelem   = ntd->mmd.nelem;
 
-	for(int i=0; i<nelem; i++){
-		const char *dcn = mme[i].datacenter;
-		if( !dcn ) continue;
-		if(mme[i].metric) continue;
-		const RR_GLB_MM *rr = find_element(dcn);
-		const RRSet *rss = rr ? rr->comp_rrset : 0;
-		if( ! rss ){
-			mme[i].datacenter = 0;
-			continue;
+		for(int i=0; i<nelem; i++){
+			const char *dcn = mme[i].datacenter;
+			if( !dcn ) continue;
+			if(mme[i].metric) continue;
+			const RR_GLB_MM *rr = find_element(dcn);
+			const RRSet *rss = rr ? rr->comp_rrset : 0;
+			if( ! rss ){
+				mme[i].datacenter = 0;
+				continue;
+			}
+
+			return 1;
 		}
-
-		return 1;
 	}
 
     const RR_GLB_MM *r = find(":unknown");
