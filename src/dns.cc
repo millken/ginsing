@@ -497,7 +497,7 @@ dns_process(NTD *ntd){
 
     if( rrs ){
         // add answers
-        rrs->add_answers(ntd, cl, ty,0);
+        rrs->add_answers(ntd, cl, ty);
         INCSTAT(ntd, n_rcode[0]);
     }else{
         // nope, can't help you. sorry.

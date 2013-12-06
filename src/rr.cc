@@ -305,7 +305,7 @@ RR_Alias::configure(InputF *f, Zone *z, string *rspec){
 //################################################################
 
 int
-RRSet::add_answers(NTD *ntd, int qkl, int qty,int flag) const {
+RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
 	int i,size;
 
 	if ( (time(NULL) % 2) == 0) {
@@ -376,7 +376,7 @@ RR_Alias::add_answer(NTD *ntd, bool isq, int qkl, int qty) const{
         return 1;
     }
 
-    targ_rrs->add_answers(ntd, qkl, qty,0);
+    targ_rrs->add_answers(ntd, qkl, qty);
     return 1;
 }
 

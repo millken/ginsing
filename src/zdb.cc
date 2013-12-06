@@ -526,7 +526,7 @@ ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
     // rrset[ s ]
 	MapRRSet::const_iterator it ;
 	string label;
-	int i= 1,ity;
+	int i,ity;
 	int level = num_level_domain(s);
 
 
@@ -536,10 +536,11 @@ ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
 		char buf[MAXNAME+2];
 		sprintf(buf,"%s.%s",S_FLAG,s);
 		it = rrset.find(buf);
-		if( it!=rrset.end() ) return it->second;
+		if( it!=rrset.end() ){return it->second;}
 	}
 
 	label = s;
+	i = 1;
 	if(type == TYPE_A) {
 		while(i) {
 			switch(i) {
@@ -561,11 +562,12 @@ ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
 			}
 			it  = rrset.find( label.c_str() );
 			if( it != rrset.end() ) {
-				if( (i != 1) || (nt == NULL)) return it->second;
+				if( (i != 1) || (nt == NULL)){ return it->second;}
 
-				RRSet *rrs = it->second;
-				if(rrs->add_answers(nt,cl,type,1) != 0)
+				 RRSet_GLB_MM *rrs =(RRSet_GLB_MM *)(it->second);
+				if(rrs->check_answers(nt,cl,type) != 0) {
 					return it->second;
+				}
 			}
 			label = s;
 			i++;
@@ -573,13 +575,13 @@ ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
     } else {
         getKey(label,type,level);
         it = rrset.find(label.c_str());
-        if( it != rrset.end()) return it->second;
+        if( it != rrset.end()){return it->second;}
     }
 
 	
 
 	RRSet *r = find_pananalisy(s,level);
-	if( r ) return r;
+	if( r ){return r;}
 
     // check wildcards
 	int l = strlen(s);
