@@ -36,7 +36,7 @@ RRSet_GLB_MM::add_rr(RR *r){
 }
 
 // respond with all available matching RRs
-static inline int
+int
 respond(NTD *ntd, const RRSet *rs, int qty){
 	int ok = 0,i,size;
 	
@@ -73,10 +73,10 @@ RR_GLB_MM::datacenter_looks_good(void) const{
     return ! maint_get( datacenter.c_str() );
 }
 
-int
-RRSet_GLB_RR::add_answers(NTD *ntd, int qkl, int qty) const {
+RRSet *
+RRSet_GLB_RR::add_answers(NTD *ntd, int qkl, int qty,int flag) const {
     float totwgt = 0;
-    const RRSet *best = 0;
+    RRSet *best = 0;
 
     if( qkl != CLASS_IN ) return 0;
 
@@ -117,7 +117,8 @@ RRSet_GLB_RR::add_answers(NTD *ntd, int qkl, int qty) const {
     }
 
     if( best ){
-        return respond(ntd, best, qty);
+       if(flag) respond(ntd, best, qty);
+       return best;
     }
 
     INCSTAT(ntd, n_glb_failover_fail);
@@ -174,61 +175,9 @@ RRSet_GLB_MM::find_element(const char *dc)const  {
     return r;
 }
 
-int 
-RRSet_GLB_MM::check_answers(NTD *ntd,int qkl,int qty) const
-{
-	if( qkl != CLASS_IN) return 0;
-	switch(qty) {
-		case TYPE_A: 
-		case TYPE_AAAA:
-		case TYPE_CNAME:
-		case TYPE_ANY:
-			break;
-		default:
-			return 0;
-	}
-	
 
-
-	if(! MMDB::locate(ntd) ) return 0; 
-	
-	const RR_GLB_MM *best  = 0;
-    MMElem *mme = ntd->mmd.mm;
-    int nelem   = ntd->mmd.nelem;
-
-	for(int i=0; i<nelem; i++){
-		const char *dcn = mme[i].datacenter;
-		if( !dcn ) continue;
-		if(mme[i].metric) continue;
-		const RR_GLB_MM *rr = find_element(dcn);
-		const RRSet *rss = rr ? rr->comp_rrset : 0;
-		if( ! rss ){
-			mme[i].datacenter = 0;
-			continue;
-		}
-
-		return 1;
-	}
-
-    const RR_GLB_MM *r = find(":unknown");
-	if( ! r )  return 0;
-	const RRSet *rs = r->comp_rrset;
-	if( ! rs ) return 0;
-
-	for(int j=0; j<rs->rr.size(); j++){
-		const RR *rr = rs->rr[j];
-
-		if( ! rr->probe_looks_good() ) continue;
-		if( ! rr->can_satisfy(qty) )   continue;
-
-		return 1;
-	}
-
-	return 0;
-}
-
-int
-RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
+RRSet *
+RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty,int flag) const {
 
     if( qkl != CLASS_IN ) return 0;
 
@@ -250,8 +199,8 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         ntd->mmd.logflags |= GLBMM_F_NOLOC;
         // don't know where this user is
         // is there a configured "unknown" record?
-        int res = a_a_failover_specify(":unknown", ntd, qty);
-        if( res ) return res;
+        RRSet * rs = a_a_failover_specify(":unknown", ntd, qty,flag);
+        if( rs ) return rs;
         // otherwise use the first available
         //return add_answers_first_match(ntd, qty);
 		return 0;
@@ -269,15 +218,14 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         if( !dcn ) continue;
 		if(mme[i].metric) continue;
         const RR_GLB_MM *r = find_element(dcn);
-        const RRSet *rs = r ? r->comp_rrset : 0;
+        RRSet *rs = r ? r->comp_rrset : 0;
         if( ! rs ){
             mme[i].datacenter = 0;
             continue;
         }
         
-       	respond(ntd, rs, qty );
-		return 1;
-
+		if( flag ) respond(ntd, rs, qty );
+		return rs;
     
         /*
         bool dcok = r->datacenter_looks_good();
@@ -314,8 +262,8 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
         }
         */
     }
-    int res = a_a_failover_specify(":unknown", ntd, qty);
-    if( res ) return res;
+    RRSet * rs = a_a_failover_specify(":unknown", ntd, qty,flag);
+    if( rs ) return rs;
     return 0;
     /*
     // grumble. best is not available
@@ -341,6 +289,8 @@ RRSet_GLB_MM::add_answers(NTD *ntd, int qkl, int qty) const {
 // if we cannot figure out where the user is
 // and there is no unknown configured
 // they get sent to the first matching RR
+
+/*
 int
 RRSet_GLB_MM::add_answers_first_match(NTD *ntd, int qty) const {
 
@@ -505,14 +455,15 @@ RRSet_GLB_MM::a_a_failover_specify(const RR_GLB_MM *dbest, NTD *ntd, int qty) co
     return a_a_failover_specify(where, ntd, qty);
 }
 
-int
-RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty) const {
+*/
+RRSet *
+RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty,int flag) const {
 
     // use specified dst
     const RR_GLB_MM *r = find( dst );
 
     if( ! r )  return 0;
-    const RRSet *rs = r->comp_rrset;
+    RRSet *rs = r->comp_rrset;
     if( ! rs ) return 0;
 
     for(int j=0; j<rs->rr.size(); j++){
@@ -522,7 +473,8 @@ RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty) const {
         if( ! rr->can_satisfy(qty) )   continue;
 
         DEBUG("failover to specified '%s', using %s", dst, rr->name.c_str());
-        return respond(ntd, rs, qty);
+		if(flag)respond(ntd, rs, qty);
+		return rs;
     }
 
     return 0;

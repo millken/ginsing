@@ -481,7 +481,8 @@ dns_process(NTD *ntd){
 
     // find answer
 
-    RRSet *rrs = zdb->find_rrset( ntd->querd.name,ntd->querd.type,cl,ntd);
+	int option = 0;
+    RRSet *rrs = zdb->find_rrset( ntd->querd.name,ntd->querd.type,cl,ntd,option);
     Zone  *z   = rrs ? rrs->zone : zdb->find_zone( ntd->querd.name );
 
     DEBUG("found rrs %x z %x (%s)", rrs, z, z? z->zonename.c_str() : "-");
@@ -497,7 +498,11 @@ dns_process(NTD *ntd){
 
     if( rrs ){
         // add answers
-        rrs->add_answers(ntd, cl, ty);
+		if( option ) { 
+			respond(ntd,rrs,ty);
+	 	} else {
+        	rrs->add_answers(ntd, cl, ty,1);
+		}
         INCSTAT(ntd, n_rcode[0]);
     }else{
         // nope, can't help you. sorry.

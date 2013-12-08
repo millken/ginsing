@@ -243,7 +243,7 @@ RR_Alias::wire_up(ZDB *db, Zone *z, RRSet *s){
 
     // same zone?
     RRSet *rrs = z->find_rrset( & target, 0 );
-    if( ! rrs ) rrs = db->find_rrset( target.c_str(),TYPE_A,0,NULL);
+    if( ! rrs ){int option; rrs = db->find_rrset( target.c_str(),TYPE_A,0,NULL,option);}
     if( !rrs ){
         PROBLEM("cannot locate ALIAS target %s => %s", s->fqdn.c_str(), target.c_str());
         return;
@@ -471,7 +471,7 @@ ZDB::find_pananalisy(const char *s,int level) const {
         r = it->second;
     }
 
-    if( strlen(buf) > 0 ) return r;
+    if( strlen(buf) > 0 ){DEBUG("find %s",buf); return r;}
 
 //match *.example.com 
     sprintf(buf,"%s.%s","*",domain);
@@ -522,7 +522,7 @@ ZDB::getKey(string &label,int ity,int level ) const
 
 
 RRSet *
-ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
+ZDB::find_rrset(const char *s,int type,int cl,NTD *nt,int &option) const {
     // rrset[ s ]
 	MapRRSet::const_iterator it ;
 	string label;
@@ -563,11 +563,9 @@ ZDB::find_rrset(const char *s,int type,int cl,NTD *nt) const {
 			it  = rrset.find( label.c_str() );
 			if( it != rrset.end() ) {
 				if( (i != 1) || (nt == NULL)){ return it->second;}
-
 				 RRSet_GLB_MM *rrs =(RRSet_GLB_MM *)(it->second);
-				if(rrs->check_answers(nt,cl,type) != 0) {
-					return it->second;
-				}
+				 RRSet * rs = rrs->add_answers(nt,cl,type,0);
+				 if( rs ) {option = 1;return rs; }	
 			}
 			label = s;
 			i++;
