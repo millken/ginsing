@@ -304,8 +304,8 @@ RR_Alias::configure(InputF *f, Zone *z, string *rspec){
 
 //################################################################
 
-int
-RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
+RRSet *
+RRSet::add_answers(NTD *ntd, int qkl, int qty,int flag) const {
 	int i,size;
 
 	if ( (time(NULL) % 2) == 0) {
@@ -342,17 +342,17 @@ RRSet::add_answers(NTD *ntd, int qkl, int qty) const {
         if( r->klass == qkl && r->can_satisfy(qty) ){
             if( r->type == TYPE_NS ) ntd->respd.has_ns_ans = 1;
             DEBUG("found answer %s %d", r->name.c_str(), r->type);
-            if( ! r->add_answer(ntd, 1, qkl, qty) ) return 1;
+            if( ! r->add_answer(ntd, 1, qkl, qty) ) return 0;
 	   
             if( r->type == TYPE_CNAME && qty != TYPE_CNAME && qty != TYPE_ANY ){
                 // rfc 1034 3.6.2
-                if( ! r->add_add_ans(ntd, qkl, qty) ) return 1;
+                if( ! r->add_add_ans(ntd, qkl, qty) ) return 0;
             }
         }
     }
 
 
-    return 1;
+    return 0;
 }
 
 int
@@ -376,7 +376,7 @@ RR_Alias::add_answer(NTD *ntd, bool isq, int qkl, int qty) const{
         return 1;
     }
 
-    targ_rrs->add_answers(ntd, qkl, qty);
+    targ_rrs->add_answers(ntd, qkl, qty,0);
     return 1;
 }
 

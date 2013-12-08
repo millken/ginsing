@@ -316,7 +316,7 @@ MMDB_File::best_rec(const uchar *addr) const {
 			long long ipnum_end = ipnum_start + (2 << (32 - masklen -1)) - 1 ;
 			long long source_ip =(unsigned int)(addr[0] << 24) + (unsigned int)(addr[1] << 16) + (unsigned int)(addr[2] << 8) + (unsigned int)addr[3];
 
-//			DEBUG("s = %d, f=%d, l= %d, ipnum_start= %lu ,ipnum_end = %lu, souce_ip=%lu",s, f, l, ipnum_start, ipnum_end, source_ip );
+			DEBUG("s = %d, f=%d, l= %d, ipnum_start= %lu ,ipnum_end = %lu, souce_ip=%lu",s, f, l, ipnum_start, ipnum_end, source_ip );
 			if (ipnum_start <= source_ip && ipnum_end >=source_ip) return r;
 
             f = m + 1;     // move right
