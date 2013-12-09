@@ -13,7 +13,7 @@ LOCALDIR=/usr/local/m64
 FLAGS=-march=opteron -mtune=opteron -m64
 MYNAME=ginsing
 
-CFLAGS = $(FLAGS) -pg -O3  -ffast-math -pthread -I`pwd`/../inc -I$(LOCALDIR)/include -DMYNAME=\"$(MYNAME)\"
+CFLAGS = $(FLAGS)  -O3  -ffast-math -pthread -I`pwd`/../inc -I$(LOCALDIR)/include -DMYNAME=\"$(MYNAME)\"
 CCFLAGS=$(CFLAGS)
 CXXFLAGS=$(CFLAGS)
 
