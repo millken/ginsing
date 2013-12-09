@@ -471,7 +471,7 @@ ZDB::find_pananalisy(const char *s,int level) const {
         r = it->second;
     }
 
-    if( strlen(buf) > 0 ){DEBUG("find %s",buf); return r;}
+    if( strlen(buf) > 0 ){return r;}
 
 //match *.example.com 
     sprintf(buf,"%s.%s","*",domain);

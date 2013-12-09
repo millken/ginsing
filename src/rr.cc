@@ -376,7 +376,7 @@ RR_Alias::add_answer(NTD *ntd, bool isq, int qkl, int qty) const{
         return 1;
     }
 
-    targ_rrs->add_answers(ntd, qkl, qty,0);
+    targ_rrs->add_answers(ntd, qkl, qty,1);
     return 1;
 }
 

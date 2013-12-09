@@ -502,6 +502,7 @@ dns_process(NTD *ntd){
 			respond(ntd,rrs,ty);
 	 	} else {
         	rrs->add_answers(ntd, cl, ty,1);
+		
 		}
         INCSTAT(ntd, n_rcode[0]);
     }else{

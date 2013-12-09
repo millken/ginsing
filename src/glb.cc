@@ -473,6 +473,7 @@ RRSet_GLB_MM::a_a_failover_specify(const char *dst, NTD *ntd, int qty,int flag) 
         if( ! rr->can_satisfy(qty) )   continue;
 
         DEBUG("failover to specified '%s', using %s", dst, rr->name.c_str());
+		DEBUG("flag=%d",flag);
 		if(flag)respond(ntd, rs, qty);
 		return rs;
     }
