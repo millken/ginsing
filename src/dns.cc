@@ -496,7 +496,7 @@ dns_process(NTD *ntd){
     // init compression table
     ntd->ztab.setqz(ntd->querd.name, ntd->querd.namelen, z->zonename.length());
 
-    if( rrs ){
+    if( rrs  ){
         // add answers
 		if( option ) { 
 			respond(ntd,rrs,ty);
@@ -507,7 +507,10 @@ dns_process(NTD *ntd){
         INCSTAT(ntd, n_rcode[0]);
     }else{
         // nope, can't help you. sorry.
-        ntd->respd.flags |= RCODE_NX << RCODE_SHIFT;
+		if(ty == TYPE_AAAA) 
+			ntd->respd.flags |= RCODE_OK;
+		else 
+        	ntd->respd.flags |= RCODE_NX << RCODE_SHIFT;
         INCSTAT(ntd, n_rcode[RCODE_NX]);
     }
 
